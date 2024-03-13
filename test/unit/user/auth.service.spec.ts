@@ -87,11 +87,4 @@ describe('AuthService Test', function () {
     });
   });
 
-  describe('refreshToken method test', () => {
-    it('should return ', async () => {
-      // Given
-      // When
-      // Then
-    });
-  });
 });
