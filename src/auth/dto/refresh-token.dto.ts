@@ -3,7 +3,7 @@ import { IsString } from 'class-validator';
 
 export class RefreshTokenDto {
   @ApiProperty({
-    description: '리프레스 토큰',
+    description: '리프레시 토큰',
     type: 'string',
     example: 'refreshToken',
   })

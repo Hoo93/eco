@@ -6,6 +6,8 @@ import { User } from './users/entities/user.entity';
 import {Module} from "@nestjs/common";
 import {ConfigModule} from "@nestjs/config";
 import {TypeOrmModule} from "@nestjs/typeorm";
+import { MembersModule } from './members/members.module';
+import { ManagersModule } from './managers/managers.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import {TypeOrmModule} from "@nestjs/typeorm";
     }),
     UsersModule,
     AuthModule,
+    MembersModule,
+    ManagersModule,
   ],
 })
 export class AppModule {}

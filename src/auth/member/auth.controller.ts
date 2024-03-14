@@ -1,15 +1,13 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { User } from '../users/entities/user.entity';
-import { SignInDto } from './dto/sign-in.dto';
-import { AuthGuard } from '@nestjs/passport';
-import { GetUser } from '../common/user.decorator';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { User } from '../../users/entities/user.entity';
+import { SignInDto } from '../dto/sign-in.dto';
+import { RefreshTokenDto } from '../dto/refresh-token.dto';
+import { CreateMemberDto } from './dto/create-member.dto';
 
 @Controller('auth')
-@ApiTags('인증')
+@ApiTags('[서비스] 인증')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -21,11 +19,11 @@ export class AuthController {
     type: User,
   })
   @ApiBody({
-    type: CreateAuthDto,
+    type: CreateMemberDto,
     description: '회원 가입 DTO',
   })
-  signup(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.signup(createAuthDto);
+  signup(@Body() createMemberDto: CreateMemberDto) {
+    return this.authService.signup(createMemberDto);
   }
 
   @Post('/signin')
@@ -43,19 +41,6 @@ export class AuthController {
     return this.authService.signIn(signInDto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth('token')
-  @Post('/regenerate')
-  @ApiOperation({ summary: '토큰 재발급' })
-  @ApiResponse({
-    status: 200,
-    description: '토큰 재발급',
-    type: String,
-  })
-  async regenerateAccessToken(@GetUser() user: User) {
-    return this.authService.regenerateAccessToken(user);
-  }
-
   @Post('/refresh-token')
   @ApiOperation({ summary: '리프레시 토큰' })
   @ApiResponse({
@@ -65,7 +50,7 @@ export class AuthController {
   })
   @ApiBody({
     type: RefreshTokenDto,
-    description: '로그인 DTO',
+    description: '리프레시토큰 DTO',
   })
   async refreshAccessToken(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authService.refreshToken(refreshTokenDto.refreshToken);

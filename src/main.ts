@@ -23,10 +23,10 @@ async function bootstrap() {
   app.enableCors();
 
   const config = new DocumentBuilder()
-    .setTitle('Attendance example')
-    .setDescription('Attendance API 서버 설명')
+    .setTitle('Eco Billiards')
+    .setDescription(' API SERVER')
     .setVersion('v1.0')
-    .addTag('Attendances')
+    .addTag('Eco Billiards')
     .addBearerAuth(
       {
         type: 'http',

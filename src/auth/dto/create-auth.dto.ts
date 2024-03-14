@@ -13,7 +13,6 @@ import {
   INVALID_PASSWORD_MESSAGE,
   INVALID_PASSWORD_MIN_LENGTH_MESSAGE,
 } from '../const/error-message';
-import { User } from '../../users/entities/user.entity';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { MobileNumberTransform } from '../../common/phoneNumber.decorator';
 
@@ -27,7 +26,7 @@ export class CreateAuthDto {
   @ApiProperty({
     description: '회원 아이디',
     type: 'string',
-    example: 'testID',
+    example: 'dkandkdlel',
   })
   username: string;
 
@@ -40,7 +39,7 @@ export class CreateAuthDto {
   @ApiProperty({
     description: '회원 비밀번호',
     type: 'string',
-    example: 'pwd123!@#',
+    example: 'test123123!!',
   })
   password: string;
 
@@ -89,17 +88,4 @@ export class CreateAuthDto {
     example: 'daum@naver.com',
   })
   email?: string;
-
-  public toEntity(createdAt = new Date()) {
-    const user = new User();
-    user.username = this.username;
-    user.password = this.password;
-    user.name = this.name;
-    user.mobileNumber = this.mobileNumber;
-    user.email = this?.email || null;
-    user.birthday = this?.birthday || null;
-    user.createId = this.username;
-    user.createdAt = createdAt;
-    return user;
-  }
 }

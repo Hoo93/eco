@@ -5,7 +5,7 @@ export class SignInDto {
   @ApiProperty({
     description: '로그인 ID',
     type: 'string',
-    example: 'testID',
+    example: 'dkandkdlel',
   })
   @IsString()
   username: string;
@@ -13,7 +13,7 @@ export class SignInDto {
   @ApiProperty({
     description: '회원 비밀번호',
     type: 'string',
-    example: 'pwd123!@#',
+    example: 'test123123!!',
   })
   @IsString()
   password: string;

@@ -2,14 +2,14 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../../../src/users/entities/user.entity';
 import { MockUserRepository } from './mockUserRepository';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from '../../../src/auth/auth.service';
+import { AuthService } from '../../../src/auth/member/auth.service';
 import { CreateAuthDto } from '../../../src/auth/dto/create-auth.dto';
 import * as bcrypt from 'bcrypt';
 import { SignInDto } from '../../../src/auth/dto/sign-in.dto';
 import { JwtService } from '@nestjs/jwt';
 import { MockJwtService } from './mockJwtService';
 
-describe('AuthService Test', function () {
+describe('ManagerAuthService Test', function () {
   let service: AuthService;
   let userRepository: MockUserRepository;
   let jwtService: MockJwtService;
@@ -86,5 +86,4 @@ describe('AuthService Test', function () {
       expect(result).toHaveProperty('refreshToken');
     });
   });
-
 });

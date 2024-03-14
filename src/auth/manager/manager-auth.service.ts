@@ -1,29 +1,32 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../users/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { SignInDto } from './dto/sign-in.dto';
-import { jwtConstants } from './const/auth.const';
-import { JwtPayload } from './const/jwtPayload.interface';
+import { SignInDto } from '../dto/sign-in.dto';
+import { jwtConstants } from '../const/auth.const';
+import { JwtPayload } from '../const/jwtPayload.interface';
+import { CreateManagerDto } from './dto/create-manager.dto';
+import { Manager } from '../../managers/entities/manager.entity';
+import { UserType } from '../const/user-type.enum';
 
 @Injectable()
-export class AuthService {
+export class ManagerAuthService {
   constructor(
-    @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Manager) private managerRepository: Repository<Manager>,
     private jwtService: JwtService,
   ) {}
-  public async signup(createAuthDto: CreateAuthDto): Promise<Partial<User>> {
-    const user = createAuthDto.toEntity();
+
+  public async signup(createManagerDto: CreateManagerDto): Promise<Partial<User>> {
+    const user = createManagerDto.toEntity();
     await user.hashPassword();
-    const { password, ...result } = await this.userRepository.save(user);
+    const { password, ...result } = await this.managerRepository.save(user);
     return result;
   }
 
   public async validateUser(username: string, password: string) {
-    const user = await this.userRepository.findOne({ where: { username } });
+    const user = await this.managerRepository.findOne({ where: { username } });
     if (user && (await bcrypt.compare(password, user.password))) {
       return user;
     }
@@ -36,11 +39,37 @@ export class AuthService {
     const payload: JwtPayload = {
       id: user.id,
       username: user.username,
+      userType: UserType.MANAGER,
     };
 
     return {
       accessToken: this.generateAccessToken(payload),
       refreshToken: this.generateRefreshToken(payload),
+    };
+  }
+
+  public async refreshToken(oldRefreshToken: string) {
+    const decoded: JwtPayload = this.verifyRefreshToken(oldRefreshToken);
+    const user = await this.managerRepository.findOneBy({ id: decoded.id });
+
+    if (!user || user.refreshToken !== oldRefreshToken) {
+      throw new UnauthorizedException();
+    }
+
+    const jwtPayload: JwtPayload = {
+      id: user.id,
+      userType: 'MANAGER',
+      username: user.username,
+    };
+
+    const newAccessToken = this.generateAccessToken(jwtPayload);
+    const newRefreshToken = this.generateRefreshToken(jwtPayload);
+
+    await this.saveRefreshToken(user.id, newRefreshToken);
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
     };
   }
 
@@ -59,31 +88,7 @@ export class AuthService {
   }
 
   private async saveRefreshToken(userId: string, refreshToken: string) {
-    await this.userRepository.update(userId, { refreshToken });
-  }
-
-  public async refreshToken(oldRefreshToken: string) {
-    const decoded: JwtPayload = this.verifyRefreshToken(oldRefreshToken);
-    const user = await this.userRepository.findOneBy({ id: decoded.id });
-
-    if (!user || user.refreshToken !== oldRefreshToken) {
-      throw new UnauthorizedException();
-    }
-
-    const jwtPayload: JwtPayload = {
-      id: user.id,
-      username: user.username,
-    };
-
-    const newAccessToken = this.generateAccessToken(jwtPayload);
-    const newRefreshToken = this.generateRefreshToken(jwtPayload);
-
-    await this.saveRefreshToken(user.id, newRefreshToken);
-
-    return {
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
-    };
+    await this.managerRepository.update(userId, { refreshToken });
   }
 
   private verifyRefreshToken(oldRefreshToken: string) {
