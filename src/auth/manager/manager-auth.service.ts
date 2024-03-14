@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../../users/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -18,54 +17,58 @@ export class ManagerAuthService {
     private jwtService: JwtService,
   ) {}
 
-  public async signup(createManagerDto: CreateManagerDto): Promise<Partial<User>> {
-    const user = createManagerDto.toEntity();
-    await user.hashPassword();
-    const { password, ...result } = await this.managerRepository.save(user);
+  public async signup(createManagerDto: CreateManagerDto): Promise<Partial<Manager>> {
+    const manager = createManagerDto.toEntity();
+    await manager.hashPassword();
+    const { password, ...result } = await this.managerRepository.save(manager);
     return result;
   }
 
   public async validateUser(username: string, password: string) {
-    const user = await this.managerRepository.findOne({ where: { username } });
-    if (user && (await bcrypt.compare(password, user.password))) {
-      return user;
+    const manager = await this.managerRepository.findOne({ where: { username } });
+    if (manager && (await bcrypt.compare(password, manager.password))) {
+      return manager;
     }
     throw new BadRequestException('ID 또는 비밀번호가 정확하지 않습니다.');
   }
 
   public async signIn(signInDto: SignInDto) {
-    const user = await this.validateUser(signInDto.username, signInDto.password);
+    const manager = await this.validateUser(signInDto.username, signInDto.password);
 
     const payload: JwtPayload = {
-      id: user.id,
-      username: user.username,
+      id: manager.id,
+      username: manager.username,
       userType: UserType.MANAGER,
     };
 
+    const refreshToken = this.generateRefreshToken(payload);
+
+    await this.saveRefreshToken(manager.id, refreshToken);
+
     return {
       accessToken: this.generateAccessToken(payload),
-      refreshToken: this.generateRefreshToken(payload),
+      refreshToken: refreshToken,
     };
   }
 
   public async refreshToken(oldRefreshToken: string) {
     const decoded: JwtPayload = this.verifyRefreshToken(oldRefreshToken);
-    const user = await this.managerRepository.findOneBy({ id: decoded.id });
+    const manager = await this.managerRepository.findOneBy({ id: decoded.id });
 
-    if (!user || user.refreshToken !== oldRefreshToken) {
+    if (!manager || manager.refreshToken !== oldRefreshToken) {
       throw new UnauthorizedException();
     }
 
     const jwtPayload: JwtPayload = {
-      id: user.id,
+      id: manager.id,
       userType: 'MANAGER',
-      username: user.username,
+      username: manager.username,
     };
 
     const newAccessToken = this.generateAccessToken(jwtPayload);
     const newRefreshToken = this.generateRefreshToken(jwtPayload);
 
-    await this.saveRefreshToken(user.id, newRefreshToken);
+    await this.saveRefreshToken(manager.id, newRefreshToken);
 
     return {
       accessToken: newAccessToken,
