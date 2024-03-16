@@ -90,7 +90,8 @@ export class AuthService {
   }
 
   public async isMobileNumberAvailable(mobileNumber: string): Promise<boolean> {
-    return;
+    const found = await this.memberRepository.findOneBy({ mobileNumber });
+    return !!!found;
   }
 
   private generateAccessToken(payload: JwtPayload) {
