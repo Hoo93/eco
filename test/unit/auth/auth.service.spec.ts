@@ -298,7 +298,7 @@ describe('MemberAuthService Test', function () {
       // When, Then
       await expect(async () => {
         await service.refreshToken(refreshToken, ip);
-      }).rejects.toThrow(UnauthorizedException);
+      }).rejects.toThrow(new UnauthorizedException('리프레시토큰이 유효하지 않습니다.'));
     });
 
     it('현재 ip와 마지막으로 로그인 한 ip가 다른 경우 에러를 발생한다.', async () => {
@@ -331,7 +331,7 @@ describe('MemberAuthService Test', function () {
       // When, Then
       await expect(async () => {
         await service.refreshToken(refreshToken, ip);
-      }).rejects.toThrow(UnauthorizedException);
+      }).rejects.toThrow(new UnauthorizedException('마지막으로 로그인 한 기기가 아닙니다.'));
     });
   });
 
