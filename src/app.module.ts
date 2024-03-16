@@ -1,11 +1,12 @@
 import { AuthModule } from './auth/auth.module';
 import { getOrmConfig } from './orm.config';
-import { User } from './users/entities/user.entity';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MembersModule } from './members/members.module';
 import { ManagersModule } from './managers/managers.module';
+import { Member } from './members/entities/member.entity';
+import { Manager } from './managers/entities/manager.entity';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { ManagersModule } from './managers/managers.module';
     }),
     TypeOrmModule.forRoot({
       ...getOrmConfig(),
-      entities: [User],
+      entities: [Member, Manager],
     }),
     AuthModule,
     MembersModule,
