@@ -316,17 +316,25 @@ describe('MemberAuthService Test', function () {
       testMember.createId = 'test';
       testMember.refreshToken = 'refresh_token';
 
+      const loginHistory = new MemberLoginHistory();
+      loginHistory.id = 1;
+      loginHistory.memberId = 'test';
+      loginHistory.member = testMember;
+      loginHistory.currentIp = '127.0.0.1';
+      loginHistory.loginAt = new Date('2024-03-17 08:00:000');
+
+      await memberRepository.insert(testMember);
+      await memberLoginHistoryRepository.insert(loginHistory);
+
       const jwtPayload = {
         id: testMember.id,
         username: testMember.username,
         userType: UserType.MEMBER,
       };
 
-      await memberRepository.insert(testMember);
-
       jest.spyOn(jwtService, 'verify').mockReturnValue(jwtPayload);
 
-      const ip = '127.0.0.1';
+      const ip = '123.101.103.105';
 
       // When, Then
       await expect(async () => {
