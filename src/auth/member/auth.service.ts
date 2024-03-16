@@ -84,6 +84,11 @@ export class AuthService {
     return new CommandResponseDto('SUCCESS REFRESH TOKEN', new TokenResponseDto(newAccessToken, newRefreshToken));
   }
 
+  public async isEmailAvailable(email: string): Promise<boolean> {
+    const found = await this.memberRepository.findOneBy({ email });
+    return !!!found;
+  }
+
   private generateAccessToken(payload: JwtPayload) {
     return this.jwtService.sign(payload, {
       secret: jwtConstants.accessTokenSecret,

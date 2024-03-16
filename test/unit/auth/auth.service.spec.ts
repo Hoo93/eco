@@ -418,7 +418,7 @@ describe('MemberAuthService Test', function () {
       const validationTargetEmail = 'myEmail@naver.com';
 
       // When
-      const sut = await service.validateEmail(validationTargetEmail);
+      const sut = await service.isEmailAvailable(validationTargetEmail);
 
       // Then
       expect(sut).toBeTruthy();
