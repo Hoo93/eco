@@ -7,6 +7,7 @@ import { MembersModule } from './members/members.module';
 import { ManagersModule } from './managers/managers.module';
 import { Member } from './members/entities/member.entity';
 import { Manager } from './managers/entities/manager.entity';
+import { MemberLoginHistory } from './auth/member/entity/login-history.entity';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { Manager } from './managers/entities/manager.entity';
     }),
     TypeOrmModule.forRoot({
       ...getOrmConfig(),
-      entities: [Member, Manager],
+      entities: [Member, Manager, MemberLoginHistory],
     }),
     AuthModule,
     MembersModule,

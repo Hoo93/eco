@@ -10,16 +10,18 @@ import { Member } from '../../../src/members/entities/member.entity';
 import { CreateMemberDto } from '../../../src/auth/member/dto/create-member.dto';
 import { TestModule } from '../../../src/test.module';
 import { MemberType } from '../../../src/auth/const/member-type.enum';
+import { MemberLoginHistory } from '../../../src/auth/member/entity/login-history.entity';
 
 describe('MemberAuthService Test', function () {
   let module: TestingModule;
   let service: AuthService;
   let memberRepository: Repository<Member>;
+  let memberLoginHistoryRepository: Repository<MemberLoginHistory>;
   let jwtService: MockJwtService;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [TestModule, TypeOrmModule.forFeature([Member])],
+      imports: [TestModule, TypeOrmModule.forFeature([Member, MemberLoginHistory])],
       providers: [
         AuthService,
         {
@@ -31,6 +33,7 @@ describe('MemberAuthService Test', function () {
 
     service = module.get<AuthService>(AuthService);
     memberRepository = module.get(getRepositoryToken(Member));
+    memberLoginHistoryRepository = module.get(getRepositoryToken(MemberLoginHistory));
     jwtService = module.get<MockJwtService>(JwtService);
   });
 
@@ -153,11 +156,13 @@ describe('MemberAuthService Test', function () {
       signInDto.password = 'pwd123!@#';
 
       // When
-      const result = await service.signIn(signInDto, ip);
+      const now = new Date('2024-03-16 18:00:00');
+      await service.signIn(signInDto, ip, now);
+      const sut = await memberLoginHistoryRepository.findOneBy({ memberId: testMember.id });
 
       // Then
-      expect(result).toHaveProperty('accessToken');
-      expect(result).toHaveProperty('refreshToken');
+      expect(sut?.currentIp).toBe('127.0.0.1');
+      expect(sut?.loginAt).toBe(new Date('2024-03-16 18:00:00'));
     });
   });
 
