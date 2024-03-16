@@ -2,7 +2,7 @@ import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConsoleLogger, Logger, ValidationPipe } from '@nestjs/common';
-import { AllExceptionsFilter } from './common/allException.filter';
+import { AllExceptionsFilter } from './common/error/allException.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -46,4 +46,5 @@ async function bootstrap() {
   logger.verbose('====================================');
   await app.listen(port);
 }
+
 bootstrap();

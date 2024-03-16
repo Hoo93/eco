@@ -78,10 +78,20 @@ describe('MemberAuthService Test', function () {
     it('should return User without password', async () => {
       jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => Promise.resolve(true));
 
-      const username = 'TestUser1';
+      const testMember = new Member();
+      testMember.id = 'test';
+      testMember.name = '박상후';
+      testMember.username = 'TestUser1';
+      testMember.password = 'pwd123!@#';
+      testMember.email = 'test@email.com';
+      testMember.mobileNumber = '01080981398';
+      testMember.type = MemberType.GENERAL;
+      testMember.createId = 'test';
+
+      await memberRepository.insert(testMember);
 
       const found = await memberRepository.findOne({
-        where: { username: username },
+        where: { username: testMember.username },
       });
 
       const result = await service.validateMember('TestUser1', 'pwd123!@#');
@@ -90,14 +100,62 @@ describe('MemberAuthService Test', function () {
   });
 
   describe('signIn method test', () => {
-    it('should return access-token', async () => {
+    it('should return access-token and refresh-token', async () => {
+      // Given
       jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => Promise.resolve(true));
+
+      const testMember = new Member();
+      testMember.id = 'test';
+      testMember.name = '박상후';
+      testMember.username = 'TestUser1';
+      testMember.password = 'pwd123!@#';
+      testMember.email = 'test@email.com';
+      testMember.mobileNumber = '01080981398';
+      testMember.type = MemberType.GENERAL;
+      testMember.createId = 'test';
+
+      await memberRepository.insert(testMember);
 
       const signInDto: SignInDto = new SignInDto();
       signInDto.username = 'TestUser1';
       signInDto.password = 'pwd123!@#';
 
-      const result = await service.signIn(signInDto);
+      const ip = '127.0.0.1';
+
+      // When
+      const result = await service.signIn(signInDto, ip);
+
+      // Then
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('refreshToken');
+    });
+
+    it('로그인 일시와 IP를 기록한다.', async () => {
+      // Given
+      jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => Promise.resolve(true));
+
+      const ip = '127.0.0.1';
+
+      const testMember = new Member();
+      testMember.id = 'test';
+      testMember.name = '박상후';
+      testMember.username = 'TestUser1';
+      testMember.password = 'pwd123!@#';
+      testMember.email = 'test@email.com';
+      testMember.mobileNumber = '01080981398';
+      testMember.type = MemberType.GENERAL;
+      testMember.createId = 'test';
+
+      await memberRepository.insert(testMember);
+
+      const signInDto: SignInDto = new SignInDto();
+      signInDto.username = 'TestUser1';
+      signInDto.password = 'pwd123!@#';
+
+      // When
+      const result = await service.signIn(signInDto, ip);
+
+      // Then
       expect(result).toHaveProperty('accessToken');
       expect(result).toHaveProperty('refreshToken');
     });

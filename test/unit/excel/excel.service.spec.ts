@@ -1,4 +1,4 @@
-import { ExcelService } from '../../../src/common/excel.service';
+import { ExcelService } from '../../../src/common/service/excel.service';
 import * as XLSX from 'xlsx';
 
 describe('ExcelService Test', () => {

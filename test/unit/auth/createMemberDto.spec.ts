@@ -14,7 +14,7 @@ import {
   INVALID_PASSWORD_MESSAGE,
   INVALID_PASSWORD_MIN_LENGTH_MESSAGE,
 } from '../../../src/auth/const/error-message';
-import { User } from '../../../src/users/entities/user.entity';
+import { User } from '../../../src/common/entities/user.entity';
 import { CreateMemberDto } from '../../../src/auth/member/dto/create-member.dto';
 import { MemberType } from '../../../src/auth/const/member-type.enum';
 

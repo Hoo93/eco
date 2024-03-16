@@ -1,4 +1,4 @@
-import { Pagination } from '../src/common/pagination';
+import { Pagination } from '../src/common/response/pagination';
 
 describe('Pagination', () => {
   let pagination: TestPagination;

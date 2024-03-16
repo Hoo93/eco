@@ -9,7 +9,7 @@ import {
   INVALID_EMAIL_MESSAGE,
   INVALID_MOBILENUMBER_MESSAGE,
 } from '../../const/error-message';
-import { MobileNumberTransform } from '../../../common/phoneNumber.decorator';
+import { MobileNumberTransform } from '../../../common/decorator/phoneNumber.decorator';
 
 export class CreateMemberDto extends CreateAuthDto {
   @IsEnum(MemberType)

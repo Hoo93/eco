@@ -1,5 +1,5 @@
 import { Column } from 'typeorm';
-import { BaseTimeEntity } from '../../BaseTimeEntity';
+import { BaseTimeEntity } from './BaseTimeEntity';
 import * as bcrypt from 'bcrypt';
 import { SALT } from '../../auth/const/auth.const';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -24,6 +24,10 @@ export abstract class User extends BaseTimeEntity {
   @Column({ comment: '최근 로그인 일자', type: 'datetime', nullable: true })
   @ApiPropertyOptional({ description: '최근 로그인 일자', type: 'datetime' })
   latestLoginDate: Date;
+
+  @Column({ comment: '최근 로그인 IP', type: 'varchar', nullable: false })
+  @ApiPropertyOptional({ description: '최근 로그인 IP', type: 'string' })
+  loginIp: string;
 
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, SALT);
