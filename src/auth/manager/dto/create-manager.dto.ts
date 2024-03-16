@@ -1,17 +1,14 @@
-import { Member } from '../../../members/entities/member.entity';
 import { CreateAuthDto } from '../../dto/create-auth.dto';
+import { Manager } from '../../../managers/entities/manager.entity';
 
 export class CreateManagerDto extends CreateAuthDto {
   public toEntity(createdAt = new Date()) {
-    const member = new Member();
-    member.username = this.username;
-    member.password = this.password;
-    member.name = this.name;
-    member.mobileNumber = this.mobileNumber;
-    member.email = this?.email || null;
-    member.birthday = this?.birthday || null;
-    member.createId = this.username;
-    member.createdAt = createdAt;
-    return member;
+    const manager = new Manager();
+    manager.username = this.username;
+    manager.password = this.password;
+    manager.name = this.name;
+    manager.createId = this.username;
+    manager.createdAt = createdAt;
+    return manager;
   }
 }
