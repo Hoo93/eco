@@ -1,5 +1,4 @@
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from '../../../src/users/entities/user.entity';
+import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from '../../../src/auth/member/auth.service';
 import * as bcrypt from 'bcrypt';
@@ -9,14 +8,18 @@ import { MockJwtService } from './mockJwtService';
 import { Repository } from 'typeorm';
 import { Member } from '../../../src/members/entities/member.entity';
 import { CreateMemberDto } from '../../../src/auth/member/dto/create-member.dto';
+import { TestModule } from '../../../src/test.module';
+import { MemberType } from '../../../src/auth/const/member-type.enum';
 
-describe('ManagerAuthService Test', function () {
+describe('MemberAuthService Test', function () {
+  let module: TestingModule;
   let service: AuthService;
   let memberRepository: Repository<Member>;
   let jwtService: MockJwtService;
 
   beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
+      imports: [TestModule, TypeOrmModule.forFeature([Member])],
       providers: [
         AuthService,
         {
@@ -27,8 +30,21 @@ describe('ManagerAuthService Test', function () {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    memberRepository = module.get(getRepositoryToken(User));
+    memberRepository = module.get(getRepositoryToken(Member));
     jwtService = module.get<MockJwtService>(JwtService);
+  });
+
+  beforeEach(async () => {
+    await setupTest();
+  });
+
+  afterEach(async () => {
+    // Delete tables after each test
+    await clear();
+  });
+
+  afterAll(async () => {
+    await module.close();
   });
 
   it('authService should be defined', function () {
@@ -39,20 +55,23 @@ describe('ManagerAuthService Test', function () {
   it('signup return User without password', async () => {
     const dto = new CreateMemberDto();
     dto.username = 'testID';
+    dto.type = MemberType.GENERAL;
     dto.password = 'testpwd123!';
     dto.name = 'testname';
     dto.mobileNumber = '010-8098-1398';
-    dto.birthday = '931117';
+    dto.birthday = '1117';
     dto.email = 'sksk8922@gmail.com';
 
     const signupResult = await service.signup(dto);
-    expect(signupResult.username).toBe(dto.username);
-    expect(signupResult.name).toBe(dto.name);
-    expect(signupResult.mobileNumber).toBe(dto.mobileNumber);
-    expect(signupResult.birthday).toBe(dto.birthday);
-    expect(signupResult.email).toBe(dto.email);
-
-    expect(signupResult.password).not.toBeDefined();
+    expect(signupResult.success).toBeTruthy();
+    expect(signupResult.message).toBe('SUCCESS SIGNUP');
+    expect(signupResult.data.username).toBe('testID');
+    expect(signupResult.data.type).toBe(MemberType.GENERAL);
+    expect(signupResult.data.name).toBe('testname');
+    expect(signupResult.data.mobileNumber).toBe('010-8098-1398');
+    expect(signupResult.data.birthday).toBe('1117');
+    expect(signupResult.data.email).toBe('sksk8922@gmail.com');
+    expect(signupResult.data.password).not.toBeDefined();
   });
 
   describe('Validate Method Test', () => {
@@ -65,7 +84,7 @@ describe('ManagerAuthService Test', function () {
         where: { username: username },
       });
 
-      const result = await service.validateUser('TestUser1', 'pwd123!@#');
+      const result = await service.validateMember('TestUser1', 'pwd123!@#');
       expect(result).toEqual(found);
     });
   });
@@ -83,4 +102,10 @@ describe('ManagerAuthService Test', function () {
       expect(result).toHaveProperty('refreshToken');
     });
   });
+
+  async function setupTest() {}
+
+  async function clear() {
+    await memberRepository.query('DELETE FROM member;');
+  }
 });
