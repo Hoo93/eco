@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../../users/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -10,31 +9,37 @@ import { JwtPayload } from '../const/jwtPayload.interface';
 import { CreateMemberDto } from './dto/create-member.dto';
 import { Member } from '../../members/entities/member.entity';
 import { UserType } from '../const/user-type.enum';
+import { CommandResponseDto } from '../../common/response/command-response.dto';
+import { MemberLoginHistory } from './entity/login-history.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(Member) private memberRepository: Repository<Member>,
+    @InjectRepository(MemberLoginHistory) private memberLoginHistoryRepository: Repository<MemberLoginHistory>,
     private jwtService: JwtService,
   ) {}
 
-  public async signup(createMemberDto: CreateMemberDto): Promise<Partial<User>> {
-    const user = createMemberDto.toEntity();
-    await user.hashPassword();
-    const { password, ...result } = await this.memberRepository.save(user);
-    return result;
+  public async signup(createMemberDto: CreateMemberDto): Promise<CommandResponseDto<Member>> {
+    const member = createMemberDto.toEntity();
+    await member.hashPassword();
+    const createdMember = await this.memberRepository.save(member);
+
+    delete createdMember.password;
+
+    return new CommandResponseDto<Member>('SUCCESS SIGNUP', createdMember);
   }
 
-  public async validateUser(username: string, password: string) {
-    const user = await this.memberRepository.findOne({ where: { username } });
-    if (user && (await bcrypt.compare(password, user.password))) {
-      return user;
+  public async validateMember(username: string, password: string) {
+    const member = await this.memberRepository.findOne({ where: { username } });
+    if (member && (await bcrypt.compare(password, member.password))) {
+      return member;
     }
     throw new BadRequestException('ID 또는 비밀번호가 정확하지 않습니다.');
   }
 
-  public async signIn(signInDto: SignInDto) {
-    const member = await this.validateUser(signInDto.username, signInDto.password);
+  public async signIn(signInDto: SignInDto, ip: string, loginAt: Date = new Date()) {
+    const member = await this.validateMember(signInDto.username, signInDto.password);
 
     const payload: JwtPayload = {
       id: member.id,
@@ -45,6 +50,8 @@ export class AuthService {
     const refreshToken = this.generateRefreshToken(payload);
 
     await this.saveRefreshToken(member.id, refreshToken);
+
+    await this.createLoginHistory(member.id, ip, loginAt);
 
     return {
       accessToken: this.generateAccessToken(payload),
@@ -101,5 +108,15 @@ export class AuthService {
     } catch (err) {
       throw new UnauthorizedException('토큰이 만료되었습니다.');
     }
+  }
+
+  private async createLoginHistory(memberId: string, ip: string, loginAt: Date): Promise<null> {
+    const loginHistory = new MemberLoginHistory();
+    loginHistory.memberId = memberId;
+    loginHistory.currentIp = ip;
+    loginHistory.loginAt = loginAt;
+
+    await this.memberLoginHistoryRepository.insert(loginHistory);
+    return;
   }
 }
