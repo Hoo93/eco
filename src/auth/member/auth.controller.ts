@@ -1,10 +1,11 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { User } from '../../users/entities/user.entity';
+import { User } from '../../common/entities/user.entity';
 import { SignInDto } from '../dto/sign-in.dto';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { CreateMemberDto } from './dto/create-member.dto';
+import { CurrentIp } from '../../common/decorator/current-ip.decorator';
 
 @Controller('auth')
 @ApiTags('[서비스] 인증')
@@ -37,8 +38,8 @@ export class AuthController {
     type: SignInDto,
     description: '로그인 DTO',
   })
-  async signIn(@Body() signInDto: SignInDto) {
-    return this.authService.signIn(signInDto);
+  async signIn(@Body() signInDto: SignInDto, @CurrentIp() ip: string) {
+    return this.authService.signIn(signInDto, ip);
   }
 
   @Post('/refresh-token')
