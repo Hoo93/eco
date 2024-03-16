@@ -52,22 +52,32 @@ export class AuthService {
 
   public async refreshToken(oldRefreshToken: string, ip: string): Promise<CommandResponseDto<TokenResponseDto>> {
     const decoded: JwtPayload = this.verifyRefreshToken(oldRefreshToken);
-    const member = await this.memberRepository.findOneBy({ id: decoded.id });
+    // const member = await this.memberRepository.findOneBy({ id: decoded.id });
 
-    if (!member || member.refreshToken !== oldRefreshToken) {
-      throw new UnauthorizedException();
+    const recentLoginHistory = await this.memberLoginHistoryRepository.findOne({
+      relations: { member: true },
+      where: { memberId: decoded.id },
+      order: { loginAt: 'DESC' },
+    });
+
+    if (!recentLoginHistory?.member || recentLoginHistory?.member.refreshToken !== oldRefreshToken) {
+      throw new UnauthorizedException('리프레시토큰이 유효하지 않습니다.');
+    }
+
+    if (!recentLoginHistory || recentLoginHistory.currentIp !== ip) {
+      throw new UnauthorizedException('마지막으로 로그인 한 기기가 아닙니다.');
     }
 
     const jwtPayload: JwtPayload = {
-      id: member.id,
-      username: member.username,
+      id: recentLoginHistory.member.id,
+      username: recentLoginHistory.member.username,
       userType: UserType.MEMBER,
     };
 
     const newAccessToken = this.generateAccessToken(jwtPayload);
-    const newRefreshToken = this.generateRefreshToken(jwtPayload, member.isAutoLogin);
+    const newRefreshToken = this.generateRefreshToken(jwtPayload, recentLoginHistory.member.isAutoLogin);
 
-    await this.saveRefreshToken(member.id, newRefreshToken);
+    await this.saveRefreshToken(recentLoginHistory.member.id, newRefreshToken);
 
     return new CommandResponseDto('SUCCESS REFRESH TOKEN', new TokenResponseDto(newAccessToken, newRefreshToken));
   }
