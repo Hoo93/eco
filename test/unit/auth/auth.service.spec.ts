@@ -250,7 +250,7 @@ describe('MemberAuthService Test', function () {
   describe('refreshToken method test', () => {
     it('refreshToken 이 유효하지 않은 경우 UnauthorizedException을 발생한다.', async () => {
       // Given
-      jest.spyOn(jwtService, 'verify').mockReturnValue(false);
+      jest.spyOn(jwtService, 'verify').mockImplementationOnce(() => Promise.resolve(true));
 
       const refreshToken = 'refresh_token';
 
@@ -275,13 +275,21 @@ describe('MemberAuthService Test', function () {
       testMember.createId = 'test';
       testMember.refreshToken = 'invalid_refresh_token';
 
+      const loginHistory = new MemberLoginHistory();
+      loginHistory.id = 1;
+      loginHistory.memberId = 'test';
+      loginHistory.member = testMember;
+      loginHistory.currentIp = '127.0.0.1';
+      loginHistory.loginAt = new Date('2024-03-17 08:00:000');
+
+      await memberRepository.insert(testMember);
+      await memberLoginHistoryRepository.insert(loginHistory);
+
       const jwtPayload = {
         id: testMember.id,
         username: testMember.username,
         userType: UserType.MEMBER,
       };
-
-      await memberRepository.insert(testMember);
 
       jest.spyOn(jwtService, 'verify').mockReturnValue(jwtPayload);
 
@@ -330,6 +338,7 @@ describe('MemberAuthService Test', function () {
   async function setupTest() {}
 
   async function clear() {
+    jest.restoreAllMocks(); // 각 테스트가 종료될 때 마다 jest의 모든 모의를 초기화
     await memberLoginHistoryRepository.query('DELETE FROM member_login_history;');
     await memberRepository.query('DELETE FROM member;');
   }
