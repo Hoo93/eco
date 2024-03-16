@@ -198,11 +198,47 @@ describe('MemberAuthService Test', function () {
 
       // Then
       expect(jwtSpy).toHaveBeenNthCalledWith(
-        2, // refreshToken 생성이 두 번째 호출이라고 가정
-        expect.any(Object), // 첫 번째 인자는 payload로, 특정 구조를 가지고 있을 것입니다.
+        2, // refreshToken 생성은 두 번째 호출
+        expect.any(Object),
         expect.objectContaining({
           expiresIn: '30d',
-          secret: 'This is my super super secret', // 여기서 중요한 부분은 expiresIn 값이 '30d'인지 확인하는 것입니다.
+        }),
+      );
+    });
+
+    it('isAutoLogin undefined 인 경우 refresh-token의 만료기간이 1d 이다.', async () => {
+      // Given
+      jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => Promise.resolve(true));
+
+      const testMember = new Member();
+      testMember.id = 'test';
+      testMember.name = '박상후';
+      testMember.username = 'TestUser1';
+      testMember.password = 'pwd123!@#';
+      testMember.email = 'test@email.com';
+      testMember.mobileNumber = '01080981398';
+      testMember.type = MemberType.GENERAL;
+      testMember.createId = 'test';
+
+      await memberRepository.insert(testMember);
+
+      const signInDto = new SignInDto();
+      signInDto.username = 'TestUser1';
+      signInDto.password = 'pwd123!@#';
+
+      const ip = '127.0.0.1';
+
+      const jwtSpy = jest.spyOn(jwtService, 'sign');
+
+      // When
+      await service.signIn(signInDto, ip);
+
+      // Then
+      expect(jwtSpy).toHaveBeenNthCalledWith(
+        2, // refreshToken 생성은 두 번째 호출
+        expect.any(Object),
+        expect.objectContaining({
+          expiresIn: '1d',
         }),
       );
     });
