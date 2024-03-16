@@ -468,10 +468,10 @@ describe('MemberAuthService Test', function () {
       await memberRepository.insert(testMember);
 
       // When
-      const sut = await service.isEmailAvailable(validationTargetMobileNumber);
+      const sut = await service.isMobileNumberAvailable(validationTargetMobileNumber);
 
       // Then
-      expect(sut).toBeFalsy();
+      expect(sut).toBe(false);
     });
 
     it('핸드폰번호가 존재하지 않는 경우 true를 반환한다.', async () => {
@@ -479,7 +479,7 @@ describe('MemberAuthService Test', function () {
       const validationTargetMobileNumber = '01080981398';
 
       // When
-      const sut = await service.isEmailAvailable(validationTargetMobileNumber);
+      const sut = await service.isMobileNumberAvailable(validationTargetMobileNumber);
 
       // Then
       expect(sut).toBeTruthy();
