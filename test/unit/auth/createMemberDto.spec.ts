@@ -1,6 +1,8 @@
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import {
+  INVALID_BIRTHDAY_MESSAGE,
+  INVALID_BIRTHYEAR_MESSAGE,
   INVALID_EMAIL_MESSAGE,
   INVALID_ID_MAX_LENGTH_MESSAGE,
   INVALID_ID_MESSAGE,
@@ -142,5 +144,23 @@ describe('create-member.dto TEST', () => {
     const validationErrors = await validate(createMemberDto);
 
     expect(validationErrors[0].constraints.matches).toBe(INVALID_EMAIL_MESSAGE);
+  });
+
+  it('생년은 네 자리 숫자이어야 합니다.', async () => {
+    const invalidBirthYear = '931117';
+    createMemberDto.birthYear = invalidBirthYear;
+
+    const validationErrors = await validate(createMemberDto);
+
+    expect(validationErrors[0].constraints.matches).toBe(INVALID_BIRTHYEAR_MESSAGE);
+  });
+
+  it('생일은 네 자리 숫자이어야 합니다.', async () => {
+    const invalidBirthDay = '931117';
+    createMemberDto.birthday = invalidBirthDay;
+
+    const validationErrors = await validate(createMemberDto);
+
+    expect(validationErrors[0].constraints.matches).toBe(INVALID_BIRTHDAY_MESSAGE);
   });
 });
