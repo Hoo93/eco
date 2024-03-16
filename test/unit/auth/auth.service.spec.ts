@@ -11,6 +11,7 @@ import { CreateMemberDto } from '../../../src/auth/member/dto/create-member.dto'
 import { TestModule } from '../../../src/test.module';
 import { MemberType } from '../../../src/auth/const/member-type.enum';
 import { MemberLoginHistory } from '../../../src/auth/member/entity/login-history.entity';
+import { BadRequestException } from '@nestjs/common';
 
 describe('MemberAuthService Test', function () {
   let module: TestingModule;
@@ -142,7 +143,7 @@ describe('MemberAuthService Test', function () {
       expect(sut?.loginAt).toStrictEqual(now);
     });
 
-    it('should return User without password', async () => {
+    it('비밀번호가 정확하지 않은 경우 에러를 발생시킨다.', async () => {
       jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => Promise.resolve(false));
 
       const testMember = new Member();
@@ -164,7 +165,7 @@ describe('MemberAuthService Test', function () {
       const ip = '127.0.0.1';
 
       // When, Then
-      await expect(service.signIn(signInDto, ip)).rejects.toThrow();
+      await expect(service.signIn(signInDto, ip)).rejects.toThrow(BadRequestException);
     });
   });
 
