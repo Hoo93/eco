@@ -11,7 +11,7 @@ import { CreateMemberDto } from '../../../src/auth/member/dto/create-member.dto'
 import { TestModule } from '../../../src/test.module';
 import { MemberType } from '../../../src/auth/const/member-type.enum';
 import { MemberLoginHistory } from '../../../src/auth/member/entity/login-history.entity';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 
 describe('MemberAuthService Test', function () {
   let module: TestingModule;
@@ -144,7 +144,7 @@ describe('MemberAuthService Test', function () {
     });
 
     it('비밀번호가 정확하지 않은 경우 에러를 발생시킨다.', async () => {
-      jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => Promise.resolve(false));
+      jest.spyOn(bcrypt, 'compare').mockReturnValue();
 
       const testMember = new Member();
       testMember.id = 'test';
@@ -165,12 +165,14 @@ describe('MemberAuthService Test', function () {
       const ip = '127.0.0.1';
 
       // When, Then
-      await expect(service.signIn(signInDto, ip)).rejects.toThrow(BadRequestException);
+      await expect(async () => {
+        await service.signIn(signInDto, ip);
+      }).rejects.toThrow(BadRequestException);
     });
 
     it('isAutoLogin = true 인 경우 refresh-token의 만료기간이 30d 이다.', async () => {
       // Given
-      jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => Promise.resolve(true));
+      jest.spyOn(bcrypt, 'compare').mockImplementation(() => Promise.resolve(true));
 
       const testMember = new Member();
       testMember.id = 'test';
@@ -241,6 +243,43 @@ describe('MemberAuthService Test', function () {
           expiresIn: '1d',
         }),
       );
+    });
+  });
+
+  describe('refreshToken method test', () => {
+    it('refreshToken 이 유효하지 않은 경우 UnauthorizedException을 발생한다.', async () => {
+      // Given
+      jest.spyOn(jwtService, 'verify').mockReturnValue(false);
+
+      const refreshToken = 'refresh_token';
+
+      // When, Then
+      await expect(service.refreshToken(refreshToken)).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('회원의 저장된 refresh_token과 입력한 refresh_token이 다른 경우 에러를 발생한다.', async () => {
+      // Given
+      const refreshToken = 'refresh_token';
+
+      const testMember = new Member();
+      testMember.id = 'test';
+      testMember.name = '박상후';
+      testMember.username = 'TestUser1';
+      testMember.password = 'pwd123!@#';
+      testMember.email = 'test@email.com';
+      testMember.mobileNumber = '01080981398';
+      testMember.type = MemberType.GENERAL;
+      testMember.createId = 'test';
+      testMember.refreshToken = 'invalid_refresh_token';
+
+      await memberRepository.insert(testMember);
+
+      jest.spyOn(jwtService, 'verify').mockReturnValue(testMember);
+
+      // When, Then
+      await expect(async () => {
+        await service.refreshToken(refreshToken);
+      }).rejects.toThrow(UnauthorizedException);
     });
   });
 
