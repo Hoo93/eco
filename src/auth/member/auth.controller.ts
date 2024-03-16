@@ -53,7 +53,7 @@ export class AuthController {
     type: RefreshTokenDto,
     description: '리프레시토큰 DTO',
   })
-  async refreshAccessToken(@Body() refreshTokenDto: RefreshTokenDto) {
-    return this.authService.refreshToken(refreshTokenDto.refreshToken);
+  async refreshAccessToken(@Body() refreshTokenDto: RefreshTokenDto, @CurrentIp() ip: string) {
+    return this.authService.refreshToken(refreshTokenDto.refreshToken, ip);
   }
 }

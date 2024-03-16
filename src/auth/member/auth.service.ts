@@ -41,7 +41,7 @@ export class AuthService {
     };
 
     const accessToken = this.generateAccessToken(payload);
-    const refreshToken = this.generateRefreshToken(payload);
+    const refreshToken = this.generateRefreshToken(payload, signInDto.isAutoLogin);
 
     await this.saveRefreshToken(member.id, refreshToken);
 
@@ -50,7 +50,7 @@ export class AuthService {
     return new CommandResponseDto('SUCCESS SIGNIN', new TokenResponseDto(accessToken, refreshToken));
   }
 
-  public async refreshToken(oldRefreshToken: string): Promise<CommandResponseDto<TokenResponseDto>> {
+  public async refreshToken(oldRefreshToken: string, ip: string): Promise<CommandResponseDto<TokenResponseDto>> {
     const decoded: JwtPayload = this.verifyRefreshToken(oldRefreshToken);
     const member = await this.memberRepository.findOneBy({ id: decoded.id });
 
@@ -65,19 +65,11 @@ export class AuthService {
     };
 
     const newAccessToken = this.generateAccessToken(jwtPayload);
-    const newRefreshToken = this.generateRefreshToken(jwtPayload);
+    const newRefreshToken = this.generateRefreshToken(jwtPayload, member.isAutoLogin);
 
     await this.saveRefreshToken(member.id, newRefreshToken);
 
     return new CommandResponseDto('SUCCESS REFRESH TOKEN', new TokenResponseDto(newAccessToken, newRefreshToken));
-  }
-
-  private async validateMember(username: string, password: string) {
-    const member = await this.memberRepository.findOne({ where: { username } });
-    if (member && (await bcrypt.compare(password, member.password))) {
-      return member;
-    }
-    throw new BadRequestException('ID 또는 비밀번호가 정확하지 않습니다.');
   }
 
   private generateAccessToken(payload: JwtPayload) {
@@ -87,11 +79,19 @@ export class AuthService {
     });
   }
 
-  private generateRefreshToken(payload: JwtPayload) {
+  private generateRefreshToken(payload: JwtPayload, isAutoLogin: boolean = false) {
     return this.jwtService.sign(payload, {
       secret: jwtConstants.refreshTokenSecret,
-      expiresIn: jwtConstants.refreshTokenExpiresIn,
+      expiresIn: isAutoLogin ? jwtConstants.autoLoginRefreshTokenExpiresIn : jwtConstants.refreshTokenExpiresIn,
     });
+  }
+
+  private async validateMember(username: string, password: string) {
+    const member = await this.memberRepository.findOne({ where: { username } });
+    if (member && (await bcrypt.compare(password, member.password))) {
+      return member;
+    }
+    throw new BadRequestException('ID 또는 비밀번호가 정확하지 않습니다.');
   }
 
   private async saveRefreshToken(userId: string, refreshToken: string) {

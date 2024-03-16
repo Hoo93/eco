@@ -12,6 +12,7 @@ import { TestModule } from '../../../src/test.module';
 import { MemberType } from '../../../src/auth/const/member-type.enum';
 import { MemberLoginHistory } from '../../../src/auth/member/entity/login-history.entity';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { UserType } from '../../../src/auth/const/user-type.enum';
 
 describe('MemberAuthService Test', function () {
   let module: TestingModule;
@@ -253,8 +254,10 @@ describe('MemberAuthService Test', function () {
 
       const refreshToken = 'refresh_token';
 
+      const ip = '127.0.0.1';
+
       // When, Then
-      await expect(service.refreshToken(refreshToken)).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshToken(refreshToken, ip)).rejects.toThrow(UnauthorizedException);
     });
 
     it('회원의 저장된 refresh_token과 입력한 refresh_token이 다른 경우 에러를 발생한다.', async () => {
@@ -263,22 +266,63 @@ describe('MemberAuthService Test', function () {
 
       const testMember = new Member();
       testMember.id = 'test';
+      testMember.type = MemberType.GENERAL;
       testMember.name = '박상후';
       testMember.username = 'TestUser1';
       testMember.password = 'pwd123!@#';
       testMember.email = 'test@email.com';
       testMember.mobileNumber = '01080981398';
-      testMember.type = MemberType.GENERAL;
       testMember.createId = 'test';
       testMember.refreshToken = 'invalid_refresh_token';
 
+      const jwtPayload = {
+        id: testMember.id,
+        username: testMember.username,
+        userType: UserType.MEMBER,
+      };
+
       await memberRepository.insert(testMember);
 
-      jest.spyOn(jwtService, 'verify').mockReturnValue(testMember);
+      jest.spyOn(jwtService, 'verify').mockReturnValue(jwtPayload);
+
+      const ip = '127.0.0.1';
 
       // When, Then
       await expect(async () => {
-        await service.refreshToken(refreshToken);
+        await service.refreshToken(refreshToken, ip);
+      }).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('현재 ip와 마지막으로 로그인 한 ip가 다른 경우 에러를 발생한다.', async () => {
+      // Given
+      const refreshToken = 'refresh_token';
+
+      const testMember = new Member();
+      testMember.id = 'test';
+      testMember.type = MemberType.GENERAL;
+      testMember.name = '박상후';
+      testMember.username = 'TestUser1';
+      testMember.password = 'pwd123!@#';
+      testMember.email = 'test@email.com';
+      testMember.mobileNumber = '01080981398';
+      testMember.createId = 'test';
+      testMember.refreshToken = 'refresh_token';
+
+      const jwtPayload = {
+        id: testMember.id,
+        username: testMember.username,
+        userType: UserType.MEMBER,
+      };
+
+      await memberRepository.insert(testMember);
+
+      jest.spyOn(jwtService, 'verify').mockReturnValue(jwtPayload);
+
+      const ip = '127.0.0.1';
+
+      // When, Then
+      await expect(async () => {
+        await service.refreshToken(refreshToken, ip);
       }).rejects.toThrow(UnauthorizedException);
     });
   });
