@@ -413,7 +413,31 @@ describe('MemberAuthService Test', function () {
   });
 
   describe('validateEmail method test', () => {
-    it('', async () => {
+    it('이미 이메일이 존재하는 경우 false를 반환한다.', async () => {
+      // Given
+      const validationTargetEmail = 'myEmail@naver.com';
+
+      const testMember = new Member();
+      testMember.email = 'myEmail@naver.com';
+      testMember.id = 'test';
+      testMember.type = MemberType.GENERAL;
+      testMember.name = '박상후';
+      testMember.username = 'TestUser1';
+      testMember.password = 'pwd123!@#';
+      testMember.mobileNumber = '01080981398';
+      testMember.createId = 'test';
+      testMember.refreshToken = 'refresh_token';
+
+      await memberRepository.insert(testMember);
+
+      // When
+      const sut = await service.isEmailAvailable(validationTargetEmail);
+
+      // Then
+      expect(sut).toBeFalsy();
+    });
+
+    it('이메일이 존재하지 않는 경우 true를 반환한다.', async () => {
       // Given
       const validationTargetEmail = 'myEmail@naver.com';
 
