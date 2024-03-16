@@ -266,6 +266,7 @@ describe('MemberAuthService Test', function () {
       const signInDto = new SignInDto();
       signInDto.username = 'TestUser1';
       signInDto.password = 'pwd123!@#';
+      signInDto.isAutoLogin = true;
 
       const ip = '127.0.0.1';
 
@@ -277,6 +278,41 @@ describe('MemberAuthService Test', function () {
 
       // Then
       expect(sut.isAutoLogin).toBeTruthy();
+    });
+
+    it('isAutoLogin = undefined 인 경우 member isAutoLogin = false로 업데이트한다.', async () => {
+      // Given
+      jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => Promise.resolve(true));
+      jest.spyOn(jwtService, 'sign').mockImplementationOnce(() => Promise.resolve('token'));
+
+      const testMember = new Member();
+      testMember.id = 'test';
+      testMember.name = '박상후';
+      testMember.username = 'TestUser1';
+      testMember.password = 'pwd123!@#';
+      testMember.email = 'test@email.com';
+      testMember.mobileNumber = '01080981398';
+      testMember.type = MemberType.GENERAL;
+      testMember.createId = 'test';
+
+      testMember.isAutoLogin = true;
+
+      await memberRepository.insert(testMember);
+
+      const signInDto = new SignInDto();
+      signInDto.username = 'TestUser1';
+      signInDto.password = 'pwd123!@#';
+
+      const ip = '127.0.0.1';
+
+      const jwtSpy = jest.spyOn(jwtService, 'sign');
+
+      // When
+      await service.signIn(signInDto, ip);
+      const sut = await memberRepository.findOneBy({ id: testMember.id });
+
+      // Then
+      expect(sut.isAutoLogin).toBeFalsy();
     });
   });
 
