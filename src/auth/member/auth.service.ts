@@ -11,6 +11,7 @@ import { Member } from '../../members/entities/member.entity';
 import { UserType } from '../const/user-type.enum';
 import { CommandResponseDto } from '../../common/response/command-response.dto';
 import { MemberLoginHistory } from './entity/login-history.entity';
+import { TokenResponseDto } from '../const/token-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -27,18 +28,10 @@ export class AuthService {
 
     delete createdMember.password;
 
-    return new CommandResponseDto<Member>('SUCCESS SIGNUP', createdMember);
+    return new CommandResponseDto('SUCCESS SIGNUP', createdMember);
   }
 
-  public async validateMember(username: string, password: string) {
-    const member = await this.memberRepository.findOne({ where: { username } });
-    if (member && (await bcrypt.compare(password, member.password))) {
-      return member;
-    }
-    throw new BadRequestException('ID 또는 비밀번호가 정확하지 않습니다.');
-  }
-
-  public async signIn(signInDto: SignInDto, ip: string, loginAt: Date = new Date()) {
+  public async signIn(signInDto: SignInDto, ip: string, loginAt: Date = new Date()): Promise<CommandResponseDto<TokenResponseDto>> {
     const member = await this.validateMember(signInDto.username, signInDto.password);
 
     const payload: JwtPayload = {
@@ -47,19 +40,17 @@ export class AuthService {
       userType: UserType.MEMBER,
     };
 
+    const accessToken = this.generateAccessToken(payload);
     const refreshToken = this.generateRefreshToken(payload);
 
     await this.saveRefreshToken(member.id, refreshToken);
 
     await this.createLoginHistory(member.id, ip, loginAt);
 
-    return {
-      accessToken: this.generateAccessToken(payload),
-      refreshToken: refreshToken,
-    };
+    return new CommandResponseDto('SUCCESS SIGNIN', new TokenResponseDto(accessToken, refreshToken));
   }
 
-  public async refreshToken(oldRefreshToken: string) {
+  public async refreshToken(oldRefreshToken: string): Promise<CommandResponseDto<TokenResponseDto>> {
     const decoded: JwtPayload = this.verifyRefreshToken(oldRefreshToken);
     const member = await this.memberRepository.findOneBy({ id: decoded.id });
 
@@ -78,10 +69,15 @@ export class AuthService {
 
     await this.saveRefreshToken(member.id, newRefreshToken);
 
-    return {
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
-    };
+    return new CommandResponseDto('SUCCESS REFRESH TOKEN', new TokenResponseDto(newAccessToken, newRefreshToken));
+  }
+
+  private async validateMember(username: string, password: string) {
+    const member = await this.memberRepository.findOne({ where: { username } });
+    if (member && (await bcrypt.compare(password, member.password))) {
+      return member;
+    }
+    throw new BadRequestException('ID 또는 비밀번호가 정확하지 않습니다.');
   }
 
   private generateAccessToken(payload: JwtPayload) {
