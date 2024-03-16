@@ -24,6 +24,10 @@ export class Member extends User {
   @ApiPropertyOptional({ description: '이메일', type: 'string' })
   email?: string;
 
+  @Column({ nullable: true, comment: '생년', type: 'varchar' })
+  @ApiPropertyOptional({ description: '생년', type: 'string' })
+  birthYear?: string;
+
   @Column({ nullable: true, comment: '생년월일', type: 'varchar' })
   @ApiPropertyOptional({ description: '생년월일', type: 'string' })
   birthday?: string;
