@@ -21,14 +21,6 @@ export abstract class User extends BaseTimeEntity {
   @ApiPropertyOptional({ description: '리프레시토큰', type: 'string' })
   refreshToken?: string;
 
-  @Column({ comment: '최근 로그인 일자', type: 'datetime', nullable: true })
-  @ApiPropertyOptional({ description: '최근 로그인 일자', type: 'datetime' })
-  latestLoginDate: Date;
-
-  @Column({ comment: '최근 로그인 IP', type: 'varchar', nullable: false })
-  @ApiPropertyOptional({ description: '최근 로그인 IP', type: 'string' })
-  loginIp: string;
-
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, SALT);
   }
