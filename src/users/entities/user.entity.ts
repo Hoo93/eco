@@ -17,10 +17,6 @@ export abstract class User extends BaseTimeEntity {
   @ApiProperty({ description: '회원 이름', type: 'string' })
   name: string;
 
-  @Column({ comment: '전화번호', type: 'varchar' })
-  @ApiProperty({ description: '전화번호', type: 'string' })
-  mobileNumber: string;
-
   @Column({ nullable: true, comment: '리프레시토큰', type: 'varchar' })
   @ApiPropertyOptional({ description: '리프레시토큰', type: 'string' })
   refreshToken?: string;
