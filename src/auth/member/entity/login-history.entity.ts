@@ -1,10 +1,11 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Member } from '../../../members/entities/member.entity';
 
 @Entity()
 export class MemberLoginHistory {
   @PrimaryGeneratedColumn('increment')
-  @ApiProperty({ description: '로그인 이력 PK', type: 'string' })
+  @ApiProperty({ description: '로그인 이력 PK', type: 'number' })
   id: number;
 
   @Column({ comment: '회원 PK', type: 'varchar' })
@@ -16,5 +17,11 @@ export class MemberLoginHistory {
   currentIp: string;
 
   @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date;
+  @ApiProperty({ description: '로그인 시간', example: '2021-01-01T00:00:00.000Z' })
+  loginAt: Date;
+
+  // 단방향 관계로 설정
+  @ManyToOne(() => Member)
+  @JoinColumn({ name: 'memberId' })
+  member: Member;
 }
