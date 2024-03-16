@@ -162,13 +162,14 @@ describe('MemberAuthService Test', function () {
 
       // Then
       expect(sut?.currentIp).toBe('127.0.0.1');
-      expect(sut?.loginAt).toBe(new Date('2024-03-16 18:00:00'));
+      expect(sut?.loginAt).toStrictEqual(now);
     });
   });
 
   async function setupTest() {}
 
   async function clear() {
+    await memberLoginHistoryRepository.query('DELETE FROM member_login_history;');
     await memberRepository.query('DELETE FROM member;');
   }
 });
