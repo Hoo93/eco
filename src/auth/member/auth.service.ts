@@ -47,6 +47,8 @@ export class AuthService {
 
     await this.createLoginHistory(member.id, ip, loginAt);
 
+    await this.memberRepository.update(member.id, { isAutoLogin: signInDto.isAutoLogin ?? false });
+
     return new CommandResponseDto('SUCCESS SIGNIN', new TokenResponseDto(accessToken, refreshToken));
   }
 
