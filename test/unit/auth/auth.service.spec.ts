@@ -1,27 +1,24 @@
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../../../src/users/entities/user.entity';
-import { MockUserRepository } from './mockUserRepository';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from '../../../src/auth/member/auth.service';
-import { CreateAuthDto } from '../../../src/auth/dto/create-auth.dto';
 import * as bcrypt from 'bcrypt';
 import { SignInDto } from '../../../src/auth/dto/sign-in.dto';
 import { JwtService } from '@nestjs/jwt';
 import { MockJwtService } from './mockJwtService';
+import { Repository } from 'typeorm';
+import { Member } from '../../../src/members/entities/member.entity';
+import { CreateMemberDto } from '../../../src/auth/member/dto/create-member.dto';
 
 describe('ManagerAuthService Test', function () {
   let service: AuthService;
-  let userRepository: MockUserRepository;
+  let memberRepository: Repository<Member>;
   let jwtService: MockJwtService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        {
-          provide: getRepositoryToken(User),
-          useClass: MockUserRepository,
-        },
         {
           provide: JwtService,
           useClass: MockJwtService,
@@ -30,7 +27,7 @@ describe('ManagerAuthService Test', function () {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    userRepository = module.get<MockUserRepository>(getRepositoryToken(User));
+    memberRepository = module.get(getRepositoryToken(User));
     jwtService = module.get<MockJwtService>(JwtService);
   });
 
@@ -40,7 +37,7 @@ describe('ManagerAuthService Test', function () {
   });
 
   it('signup return User without password', async () => {
-    const dto = new CreateAuthDto();
+    const dto = new CreateMemberDto();
     dto.username = 'testID';
     dto.password = 'testpwd123!';
     dto.name = 'testname';
@@ -64,7 +61,7 @@ describe('ManagerAuthService Test', function () {
 
       const username = 'TestUser1';
 
-      const found = await userRepository.findOne({
+      const found = await memberRepository.findOne({
         where: { username: username },
       });
 
