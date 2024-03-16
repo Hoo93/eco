@@ -8,9 +8,18 @@ import { Member } from '../members/entities/member.entity';
 import { Manager } from '../managers/entities/manager.entity';
 import { ManagerAuthController } from './manager/manager-auth.controller';
 import { ManagerAuthService } from './manager/manager-auth.service';
+import { MembersModule } from '../members/members.module';
+import { ManagersModule } from '../managers/managers.module';
+import { MemberLoginHistory } from './member/entity/login-history.entity';
 
 @Module({
-  imports: [PassportModule, TypeOrmModule.forFeature([Member, Manager]), JwtModule.register({})],
+  imports: [
+    PassportModule,
+    MembersModule,
+    ManagersModule,
+    TypeOrmModule.forFeature([Member, Manager, MemberLoginHistory]),
+    JwtModule.register({}),
+  ],
   controllers: [AuthController, ManagerAuthController],
   providers: [AuthService, ManagerAuthService],
 })
