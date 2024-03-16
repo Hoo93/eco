@@ -77,31 +77,6 @@ describe('MemberAuthService Test', function () {
     expect(signupResult.data.password).not.toBeDefined();
   });
 
-  describe('Validate Method Test', () => {
-    it('should return User without password', async () => {
-      jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => Promise.resolve(true));
-
-      const testMember = new Member();
-      testMember.id = 'test';
-      testMember.name = '박상후';
-      testMember.username = 'TestUser1';
-      testMember.password = 'pwd123!@#';
-      testMember.email = 'test@email.com';
-      testMember.mobileNumber = '01080981398';
-      testMember.type = MemberType.GENERAL;
-      testMember.createId = 'test';
-
-      await memberRepository.insert(testMember);
-
-      const found = await memberRepository.findOne({
-        where: { username: testMember.username },
-      });
-
-      const result = await service.validateMember('TestUser1', 'pwd123!@#');
-      expect(result).toEqual(found);
-    });
-  });
-
   describe('signIn method test', () => {
     it('should return access-token and refresh-token', async () => {
       // Given
@@ -129,8 +104,10 @@ describe('MemberAuthService Test', function () {
       const result = await service.signIn(signInDto, ip);
 
       // Then
-      expect(result).toHaveProperty('accessToken');
-      expect(result).toHaveProperty('refreshToken');
+      expect(result.success).toBeTruthy();
+      expect(result.message).toBe('SUCCESS SIGNIN');
+      expect(result.data).toHaveProperty('accessToken');
+      expect(result.data).toHaveProperty('refreshToken');
     });
 
     it('로그인 일시와 IP를 기록한다.', async () => {
@@ -163,6 +140,31 @@ describe('MemberAuthService Test', function () {
       // Then
       expect(sut?.currentIp).toBe('127.0.0.1');
       expect(sut?.loginAt).toStrictEqual(now);
+    });
+
+    it('should return User without password', async () => {
+      jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => Promise.resolve(false));
+
+      const testMember = new Member();
+      testMember.id = 'test';
+      testMember.name = '박상후';
+      testMember.username = 'TestUser1';
+      testMember.password = 'pwd123!@#';
+      testMember.email = 'test@email.com';
+      testMember.mobileNumber = '01080981398';
+      testMember.type = MemberType.GENERAL;
+      testMember.createId = 'test';
+
+      await memberRepository.insert(testMember);
+
+      const signInDto = new SignInDto();
+      signInDto.username = '박상후';
+      signInDto.password = 'wrongpassword';
+
+      const ip = '127.0.0.1';
+
+      // When, Then
+      await expect(service.signIn(signInDto, ip)).rejects.toThrow();
     });
   });
 
