@@ -31,4 +31,8 @@ export class Member extends User {
   @Column({ nullable: true, comment: '생년월일', type: 'varchar' })
   @ApiPropertyOptional({ description: '생년월일', type: 'string' })
   birthday?: string;
+
+  @Column({ comment: '자동로그인 여부', type: 'boolean', nullable: false, default: false })
+  @ApiPropertyOptional({ description: '자동로그인 여부', type: 'boolean', default: false })
+  isAutoLogin?: boolean;
 }
