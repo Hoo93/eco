@@ -4,4 +4,5 @@ export const jwtConstants = {
   refreshTokenSecret: 'This is my super super secret',
   accessTokenExpiresIn: '300s',
   refreshTokenExpiresIn: '1d',
+  autoLoginRefreshTokenExpiresIn: '30d',
 };

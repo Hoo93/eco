@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsBoolean, IsString } from 'class-validator';
 
 export class SignInDto {
   @ApiProperty({
@@ -17,4 +17,12 @@ export class SignInDto {
   })
   @IsString()
   password: string;
+
+  @ApiPropertyOptional({
+    description: '자동로그인 여부',
+    type: 'boolean',
+    example: false,
+  })
+  @IsBoolean()
+  isAutoLogin?: boolean;
 }
