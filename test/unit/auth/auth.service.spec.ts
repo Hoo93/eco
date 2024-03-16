@@ -412,6 +412,19 @@ describe('MemberAuthService Test', function () {
     });
   });
 
+  describe('validateEmail method test', () => {
+    it('', async () => {
+      // Given
+      const validationTargetEmail = 'myEmail@naver.com';
+
+      // When
+      const sut = await service.validateEmail(validationTargetEmail);
+
+      // Then
+      expect(sut).toBeTruthy();
+    });
+  });
+
   async function setupTest() {}
 
   async function clear() {
