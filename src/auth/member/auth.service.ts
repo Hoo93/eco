@@ -89,6 +89,10 @@ export class AuthService {
     return !!!found;
   }
 
+  public async isMobileNumberAvailable(mobileNumber: string): Promise<boolean> {
+    return;
+  }
+
   private generateAccessToken(payload: JwtPayload) {
     return this.jwtService.sign(payload, {
       secret: jwtConstants.accessTokenSecret,

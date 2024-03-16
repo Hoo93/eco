@@ -412,7 +412,7 @@ describe('MemberAuthService Test', function () {
     });
   });
 
-  describe('validateEmail method test', () => {
+  describe('isEmailAvailable method test', () => {
     it('이미 이메일이 존재하는 경우 false를 반환한다.', async () => {
       // Given
       const validationTargetEmail = 'myEmail@naver.com';
@@ -443,6 +443,43 @@ describe('MemberAuthService Test', function () {
 
       // When
       const sut = await service.isEmailAvailable(validationTargetEmail);
+
+      // Then
+      expect(sut).toBeTruthy();
+    });
+  });
+
+  describe('isMobileNumberAvailable method test', () => {
+    it('이미 핸드폰번호가 존재하는 경우 false를 반환한다.', async () => {
+      // Given
+      const validationTargetMobileNumber = '01080981398';
+
+      const testMember = new Member();
+      testMember.mobileNumber = '01080981398';
+      testMember.id = 'test';
+      testMember.type = MemberType.GENERAL;
+      testMember.name = '박상후';
+      testMember.username = 'TestUser1';
+      testMember.password = 'pwd123!@#';
+      testMember.email = 'myEmail@naver.com';
+      testMember.createId = 'test';
+      testMember.refreshToken = 'refresh_token';
+
+      await memberRepository.insert(testMember);
+
+      // When
+      const sut = await service.isEmailAvailable(validationTargetMobileNumber);
+
+      // Then
+      expect(sut).toBeFalsy();
+    });
+
+    it('핸드폰번호가 존재하지 않는 경우 true를 반환한다.', async () => {
+      // Given
+      const validationTargetMobileNumber = '01080981398';
+
+      // When
+      const sut = await service.isEmailAvailable(validationTargetMobileNumber);
 
       // Then
       expect(sut).toBeTruthy();
