@@ -434,7 +434,8 @@ describe('MemberAuthService Test', function () {
       const sut = await service.isEmailAvailable(validationTargetEmail);
 
       // Then
-      expect(sut).toBeFalsy();
+      expect(sut.success).toBeTruthy();
+      expect(sut.data.isAvailable).toBe(false);
     });
 
     it('이메일이 존재하지 않는 경우 true를 반환한다.', async () => {
@@ -445,7 +446,8 @@ describe('MemberAuthService Test', function () {
       const sut = await service.isEmailAvailable(validationTargetEmail);
 
       // Then
-      expect(sut).toBeTruthy();
+      expect(sut.success).toBeTruthy();
+      expect(sut.data.isAvailable).toBeTruthy();
     });
   });
 
@@ -471,7 +473,8 @@ describe('MemberAuthService Test', function () {
       const sut = await service.isMobileNumberAvailable(validationTargetMobileNumber);
 
       // Then
-      expect(sut).toBe(false);
+      expect(sut.success).toBeTruthy();
+      expect(sut.data.isAvailable).toBe(false);
     });
 
     it('핸드폰번호가 존재하지 않는 경우 true를 반환한다.', async () => {
@@ -482,7 +485,8 @@ describe('MemberAuthService Test', function () {
       const sut = await service.isMobileNumberAvailable(validationTargetMobileNumber);
 
       // Then
-      expect(sut).toBeTruthy();
+      expect(sut.success).toBeTruthy();
+      expect(sut.data.isAvailable).toBe(true);
     });
   });
 

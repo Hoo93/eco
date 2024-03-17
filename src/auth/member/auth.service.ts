@@ -12,6 +12,7 @@ import { UserType } from '../const/user-type.enum';
 import { CommandResponseDto } from '../../common/response/command-response.dto';
 import { MemberLoginHistory } from './entity/login-history.entity';
 import { TokenResponseDto } from '../const/token-response.dto';
+import { AvailabilityResult } from '../../common/response/is-available-res';
 
 @Injectable()
 export class AuthService {
@@ -84,14 +85,15 @@ export class AuthService {
     return new CommandResponseDto('SUCCESS REFRESH TOKEN', new TokenResponseDto(newAccessToken, newRefreshToken));
   }
 
-  public async isEmailAvailable(email: string): Promise<boolean> {
+  public async isEmailAvailable(email: string): Promise<CommandResponseDto<AvailabilityResult>> {
     const found = await this.memberRepository.findOneBy({ email });
-    return !!!found;
+
+    return new CommandResponseDto('Email Valid check success', new AvailabilityResult(!!!found));
   }
 
-  public async isMobileNumberAvailable(mobileNumber: string): Promise<boolean> {
+  public async isMobileNumberAvailable(mobileNumber: string): Promise<CommandResponseDto<AvailabilityResult>> {
     const found = await this.memberRepository.findOneBy({ mobileNumber });
-    return !!!found;
+    return new CommandResponseDto('MobileNumber Valid check success', new AvailabilityResult(!!!found));
   }
 
   private generateAccessToken(payload: JwtPayload) {
