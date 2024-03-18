@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '../../common/entities/user.entity';
@@ -6,6 +6,8 @@ import { SignInDto } from '../dto/sign-in.dto';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { CreateMemberDto } from './dto/create-member.dto';
 import { CurrentIp } from '../../common/decorator/current-ip.decorator';
+import { AvailabilityResult } from '../../common/response/is-available-res';
+import { CommandResponseDto } from '../../common/response/command-response.dto';
 
 @Controller('auth')
 @ApiTags('[서비스] 인증')
@@ -55,5 +57,23 @@ export class AuthController {
   })
   async refreshAccessToken(@Body() refreshTokenDto: RefreshTokenDto, @CurrentIp() ip: string) {
     return this.authService.refreshToken(refreshTokenDto.refreshToken, ip);
+  }
+
+  @Get('/check-email')
+  @ApiOperation({ summary: '회원 이메일 중복 확인' })
+  async checkEmailAvailability(@Query('email') email: string): Promise<CommandResponseDto<AvailabilityResult>> {
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+    return this.authService.isEmailAvailable(email);
+  }
+
+  @Get('/check-mobile-number')
+  @ApiOperation({ summary: '회원 휴대전화번호 중복 확인' })
+  async checkMobileNumberAvailability(@Query('mobileNumber') mobileNumber: string): Promise<CommandResponseDto<AvailabilityResult>> {
+    if (!mobileNumber) {
+      throw new BadRequestException('Mobile number is required');
+    }
+    return this.authService.isMobileNumberAvailable(mobileNumber);
   }
 }

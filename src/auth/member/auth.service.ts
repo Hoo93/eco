@@ -11,7 +11,7 @@ import { Member } from '../../members/entities/member.entity';
 import { UserType } from '../const/user-type.enum';
 import { CommandResponseDto } from '../../common/response/command-response.dto';
 import { MemberLoginHistory } from './entity/login-history.entity';
-import { TokenResponseDto } from '../const/token-response.dto';
+import { TokenResponseDto } from '../dto/token-response.dto';
 import { AvailabilityResult } from '../../common/response/is-available-res';
 
 @Injectable()
