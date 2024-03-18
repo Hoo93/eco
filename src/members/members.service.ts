@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMemberDto } from '../auth/member/dto/create-member.dto';
 import { UpdateMemberDto } from './dto/update-member.dto';
+import { CommandResponseDto } from '../common/response/command-response.dto';
 
 @Injectable()
 export class MembersService {
@@ -20,7 +21,7 @@ export class MembersService {
     return `This action updates a #${id} member`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} member`;
+  softDelete(id: string, userId: string) {
+    return new CommandResponseDto('SUCCESS DELETE MEMEBER');
   }
 }

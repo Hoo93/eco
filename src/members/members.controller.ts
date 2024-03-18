@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/commo
 import { MembersService } from './members.service';
 import { CreateMemberDto } from '../auth/member/dto/create-member.dto';
 import { UpdateMemberDto } from './dto/update-member.dto';
+import { GetUser } from '../common/decorator/user.decorator';
 
 @Controller('members')
 export class MembersController {
@@ -28,7 +29,7 @@ export class MembersController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.membersService.remove(+id);
+  softDelete(@Param('id') id: string, @GetUser() memberId: string) {
+    return this.membersService.softDelete(id, memberId);
   }
 }
