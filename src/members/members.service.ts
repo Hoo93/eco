@@ -22,8 +22,9 @@ export class MembersService {
     return `This action returns a #${id} member`;
   }
 
-  update(id: number, updateMemberDto: UpdateMemberDto) {
-    return `This action updates a #${id} member`;
+  async update(id: string, updateMemberDto: UpdateMemberDto): Promise<CommandResponseDto<null>> {
+    await this.memberRepository.update(id, updateMemberDto);
+    return new CommandResponseDto('회원 수정이 완료되었습니다.');
   }
 
   async softDelete(id: string, userId: string) {
