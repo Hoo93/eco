@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateMemberDto } from '../auth/member/dto/create-member.dto';
 import { UpdateMemberDto } from './dto/update-member.dto';
-import { CommandResponseDto } from '../common/response/command-response.dto';
+import { CommonResponseDto } from '../common/response/command-response.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Member } from './entities/member.entity';
 import { Repository } from 'typeorm';
@@ -18,13 +18,15 @@ export class MembersService {
     return `This action returns all members`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} member`;
+  async findOneById(id: string): Promise<CommonResponseDto<Member>> {
+    const member = await this.memberRepository.findOneBy({ id });
+    delete member.password;
+    return new CommonResponseDto('회원 조회에 성공했습니다.', member);
   }
 
-  async update(id: string, updateMemberDto: UpdateMemberDto): Promise<CommandResponseDto<null>> {
+  async update(id: string, updateMemberDto: UpdateMemberDto): Promise<CommonResponseDto<null>> {
     await this.memberRepository.update(id, updateMemberDto);
-    return new CommandResponseDto('회원 수정이 완료되었습니다.');
+    return new CommonResponseDto('회원 수정이 완료되었습니다.');
   }
 
   async softDelete(id: string, userId: string) {
@@ -34,6 +36,6 @@ export class MembersService {
 
     await this.memberRepository.softDelete({ id });
 
-    return new CommandResponseDto('SUCCESS DELETE MEMBER');
+    return new CommonResponseDto('SUCCESS DELETE MEMBER');
   }
 }
