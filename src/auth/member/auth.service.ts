@@ -85,15 +85,19 @@ export class AuthService {
     return new CommonResponseDto('SUCCESS REFRESH TOKEN', new TokenResponseDto(newAccessToken, newRefreshToken));
   }
 
-  public async isEmailAvailable(email: string): Promise<CommonResponseDto<AvailabilityResult>> {
+  public async isAvailableEmail(email: string): Promise<CommonResponseDto<AvailabilityResult>> {
     const found = await this.memberRepository.findOneBy({ email });
 
     return new CommonResponseDto('Email Valid check success', new AvailabilityResult(!!!found));
   }
 
-  public async isMobileNumberAvailable(mobileNumber: string): Promise<CommonResponseDto<AvailabilityResult>> {
+  public async isAvailableMobileNumber(mobileNumber: string): Promise<CommonResponseDto<AvailabilityResult>> {
     const found = await this.memberRepository.findOneBy({ mobileNumber });
     return new CommonResponseDto('MobileNumber Valid check success', new AvailabilityResult(!!!found));
+  }
+
+  public async isAvailableNickname(nickname: string): Promise<CommonResponseDto<AvailabilityResult>> {
+    return new CommonResponseDto('');
   }
 
   private generateAccessToken(payload: JwtPayload) {

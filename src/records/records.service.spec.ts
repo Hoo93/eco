@@ -2,7 +2,7 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { RecordsService } from '../../../src/records/records.service';
-import { User } from '../users/entities/user.entity';
+import { User } from '../common/entities/user.entity';
 import { Attendance } from '../../../src/attendances/entities/attendance.entity';
 import { AttendanceType } from '../../../src/attendances/const/attendance-type.enum';
 import { Attendee } from '../../../src/attendees/entities/attendee.entity';
@@ -18,7 +18,7 @@ import { createSimpleAttendee } from '../attendee/createSimpleAttendee';
 import { CreateAllRecordDto } from '../../../src/records/dto/createAll-record.dto';
 import { Schedule } from '../../../src/schedules/entities/schedule.entity';
 import { RecordFilterDto } from '../../../src/records/dto/record-filter.dto';
-import { ExcelService } from '../common/excel.service';
+import { ExcelService } from '../common/service/excel.service';
 
 describe('RecordsService', () => {
   let module: TestingModule;
@@ -63,7 +63,7 @@ describe('RecordsService', () => {
   describe('Create Record Test', () => {
     it('입력한 값으로 출석기록을 생성한다.', async () => {
       const user = new User();
-      user.id = 'user id 1';
+      user.id = 'auth id 1';
 
       const attendee = new Attendee();
       attendee.id = 'Attendee Id 1';
@@ -81,7 +81,7 @@ describe('RecordsService', () => {
     it('입력한 date의 실제 요일이 입력한 day가 아닌 경우 오류를 발생시킨다.', async () => {
       // Given
       const user = new User();
-      user.id = 'user id 1';
+      user.id = 'auth id 1';
 
       const attendee = new Attendee();
       attendee.id = 'Attendee Id 1';
@@ -97,7 +97,7 @@ describe('RecordsService', () => {
 
     it('출석상태가 지각이 아닌 경우 lateReason이 입력되지 않는다.', async () => {
       const user = new User();
-      user.id = 'user id 1';
+      user.id = 'auth id 1';
 
       const attendee = new Attendee();
       attendee.id = 'Attendee Id 1';
@@ -121,7 +121,7 @@ describe('RecordsService', () => {
     it('출석부 생성 시 createId, createdAt을 기록한다.', async () => {
       // Given
       const user = new User();
-      user.id = 'user id 1';
+      user.id = 'auth id 1';
 
       const attendee = new Attendee();
       attendee.id = 'Attendee Id 1';
@@ -134,13 +134,13 @@ describe('RecordsService', () => {
       const sut = await service.create(recordDto, user);
 
       expect(sut.createdAt).toStrictEqual(now);
-      expect(sut.createId).toBe('user id 1');
+      expect(sut.createId).toBe('auth id 1');
     });
 
     it('선택한 날짜에 선택한 출석대상의 출석내용이 이미 존재하는 경우 Update 한다.', async () => {
       // Given
       const user = new User();
-      user.id = 'user id 1';
+      user.id = 'auth id 1';
 
       const attendee = new Attendee();
       attendee.id = 'Attendee Id 1';
@@ -167,13 +167,13 @@ describe('RecordsService', () => {
     it('선택한 날짜에 스케쥴이 있는 모든 출석대상의 출석기록을 일괄 생성한다.', async () => {
       // Given
       const user = new User();
-      user.id = 'user id 1';
+      user.id = 'auth id 1';
 
       const attendanceId = 'testAttendanceId';
 
-      const attendee1 = createSimpleAttendee('attendee_1', attendanceId, 'user id 1');
-      const attendee2 = createSimpleAttendee('attendee_2', attendanceId, 'user id 1');
-      const attendee3 = createSimpleAttendee('attendee_3', attendanceId, 'user id 1');
+      const attendee1 = createSimpleAttendee('attendee_1', attendanceId, 'auth id 1');
+      const attendee2 = createSimpleAttendee('attendee_2', attendanceId, 'auth id 1');
+      const attendee3 = createSimpleAttendee('attendee_3', attendanceId, 'auth id 1');
 
       await attendeeRepository.query('DELETE FROM attendee;');
       const attendeeIds = await attendeeRepository.save([attendee1, attendee2, attendee3]);
@@ -214,13 +214,13 @@ describe('RecordsService', () => {
     it('스케쥴이 없는 경우 출석기록이 생성되지 않는다.', async () => {
       // Given
       const user = new User();
-      user.id = 'user id 1';
+      user.id = 'auth id 1';
 
       const attendanceId = 'testAttendanceId';
 
-      const attendee1 = createSimpleAttendee('attendee_1', attendanceId, 'user id 1');
-      const attendee2 = createSimpleAttendee('attendee_2', attendanceId, 'user id 1');
-      const attendee3 = createSimpleAttendee('attendee_3', attendanceId, 'user id 1');
+      const attendee1 = createSimpleAttendee('attendee_1', attendanceId, 'auth id 1');
+      const attendee2 = createSimpleAttendee('attendee_2', attendanceId, 'auth id 1');
+      const attendee3 = createSimpleAttendee('attendee_3', attendanceId, 'auth id 1');
 
       await attendeeRepository.query('DELETE FROM attendee;');
       const attendeeIds = await attendeeRepository.save([attendee1, attendee2, attendee3]);
@@ -260,13 +260,13 @@ describe('RecordsService', () => {
     it('선택한 날짜에 스케쥴이 있는 모든 출석대상의 출석기록을 일괄 생성한다.', async () => {
       // Given
       const user = new User();
-      user.id = 'user id 1';
+      user.id = 'auth id 1';
 
       const attendanceId = 'testAttendanceId';
 
-      const attendee1 = createSimpleAttendee('attendee_1', attendanceId, 'user id 1');
-      const attendee2 = createSimpleAttendee('attendee_2', attendanceId, 'user id 1');
-      const attendee3 = createSimpleAttendee('attendee_3', attendanceId, 'user id 1');
+      const attendee1 = createSimpleAttendee('attendee_1', attendanceId, 'auth id 1');
+      const attendee2 = createSimpleAttendee('attendee_2', attendanceId, 'auth id 1');
+      const attendee3 = createSimpleAttendee('attendee_3', attendanceId, 'auth id 1');
 
       await attendeeRepository.query('DELETE FROM attendee;');
       const attendeeIds = await attendeeRepository.save([attendee1, attendee2, attendee3]);
@@ -308,13 +308,13 @@ describe('RecordsService', () => {
     it('출석 내역이 없는 경우에 대해서만 일괄 생성한다.', async () => {
       // Given
       const user = new User();
-      user.id = 'user id 1';
+      user.id = 'auth id 1';
 
       const attendanceId = 'testAttendanceId';
 
-      const attendee1 = createSimpleAttendee('attendee_1', attendanceId, 'user id 1');
-      const attendee2 = createSimpleAttendee('attendee_2', attendanceId, 'user id 1');
-      const attendee3 = createSimpleAttendee('attendee_3', attendanceId, 'user id 1');
+      const attendee1 = createSimpleAttendee('attendee_1', attendanceId, 'auth id 1');
+      const attendee2 = createSimpleAttendee('attendee_2', attendanceId, 'auth id 1');
+      const attendee3 = createSimpleAttendee('attendee_3', attendanceId, 'auth id 1');
 
       await attendeeRepository.query('DELETE FROM attendee;');
 
@@ -347,13 +347,13 @@ describe('RecordsService', () => {
     it('attendanceId에 속한 모든 record를 조사한다.', async () => {
       // Given
       const user_1 = new User();
-      user_1.id = 'user id 1';
+      user_1.id = 'auth id 1';
 
       const targetAttendanceId = 'testAttendanceId';
 
-      const attendee1 = createSimpleAttendee('attendee_1', targetAttendanceId, 'user id 1');
-      const attendee2 = createSimpleAttendee('attendee_2', targetAttendanceId, 'user id 1');
-      const attendee3 = createSimpleAttendee('attendee_3', targetAttendanceId, 'user id 1');
+      const attendee1 = createSimpleAttendee('attendee_1', targetAttendanceId, 'auth id 1');
+      const attendee2 = createSimpleAttendee('attendee_2', targetAttendanceId, 'auth id 1');
+      const attendee3 = createSimpleAttendee('attendee_3', targetAttendanceId, 'auth id 1');
 
       await attendeeRepository.query('DELETE FROM attendee;');
       const [createdAttendee1, createdAttendee2, createdAttendee3] = await attendeeRepository.save([attendee1, attendee2, attendee3]);
@@ -386,13 +386,13 @@ describe('RecordsService', () => {
     it('attendanceId에 속하지 않은 attendee의 record는 조회되지 않는다.', async () => {
       // Given
       const user_1 = new User();
-      user_1.id = 'user id 1';
+      user_1.id = 'auth id 1';
 
       const targetAttendanceId = 'testAttendanceId';
 
-      const attendee1 = createSimpleAttendee('attendee_1', targetAttendanceId, 'user id 1');
-      const attendee2 = createSimpleAttendee('attendee_2', targetAttendanceId, 'user id 1');
-      const attendee3 = createSimpleAttendee('attendee_3', 'notTestAttendanceId', 'user id 1');
+      const attendee1 = createSimpleAttendee('attendee_1', targetAttendanceId, 'auth id 1');
+      const attendee2 = createSimpleAttendee('attendee_2', targetAttendanceId, 'auth id 1');
+      const attendee3 = createSimpleAttendee('attendee_3', 'notTestAttendanceId', 'auth id 1');
 
       await attendeeRepository.query('DELETE FROM attendee;');
       const [createdAttendee1, createdAttendee2, createdAttendee3] = await attendeeRepository.save([attendee1, attendee2, attendee3]);
@@ -425,13 +425,13 @@ describe('RecordsService', () => {
     it('recordFilterDto의 date에 속한 record만 조회한다.', async () => {
       // Given
       const user_1 = new User();
-      user_1.id = 'user id 1';
+      user_1.id = 'auth id 1';
 
       const targetAttendanceId = 'testAttendanceId';
 
-      const attendee1 = createSimpleAttendee('attendee_1', targetAttendanceId, 'user id 1');
-      const attendee2 = createSimpleAttendee('attendee_2', targetAttendanceId, 'user id 1');
-      const attendee3 = createSimpleAttendee('attendee_3', targetAttendanceId, 'user id 1');
+      const attendee1 = createSimpleAttendee('attendee_1', targetAttendanceId, 'auth id 1');
+      const attendee2 = createSimpleAttendee('attendee_2', targetAttendanceId, 'auth id 1');
+      const attendee3 = createSimpleAttendee('attendee_3', targetAttendanceId, 'auth id 1');
 
       await attendeeRepository.query('DELETE FROM attendee;');
       const [createdAttendee1, createdAttendee2, createdAttendee3] = await attendeeRepository.save([attendee1, attendee2, attendee3]);
@@ -465,13 +465,13 @@ describe('RecordsService', () => {
     it('recordFilterDto의 day에 속한 record만 조회한다.', async () => {
       // Given
       const user_1 = new User();
-      user_1.id = 'user id 1';
+      user_1.id = 'auth id 1';
 
       const targetAttendanceId = 'testAttendanceId';
 
-      const attendee1 = createSimpleAttendee('attendee_1', targetAttendanceId, 'user id 1');
-      const attendee2 = createSimpleAttendee('attendee_2', targetAttendanceId, 'user id 1');
-      const attendee3 = createSimpleAttendee('attendee_3', targetAttendanceId, 'user id 1');
+      const attendee1 = createSimpleAttendee('attendee_1', targetAttendanceId, 'auth id 1');
+      const attendee2 = createSimpleAttendee('attendee_2', targetAttendanceId, 'auth id 1');
+      const attendee3 = createSimpleAttendee('attendee_3', targetAttendanceId, 'auth id 1');
 
       await attendeeRepository.query('DELETE FROM attendee;');
       const [createdAttendee1, createdAttendee2, createdAttendee3] = await attendeeRepository.save([attendee1, attendee2, attendee3]);
@@ -505,13 +505,13 @@ describe('RecordsService', () => {
     it('recordFilterDto의 status에 속한 record만 조회한다.', async () => {
       // Given
       const user_1 = new User();
-      user_1.id = 'user id 1';
+      user_1.id = 'auth id 1';
 
       const targetAttendanceId = 'testAttendanceId';
 
-      const attendee1 = createSimpleAttendee('attendee_1', targetAttendanceId, 'user id 1');
-      const attendee2 = createSimpleAttendee('attendee_2', targetAttendanceId, 'user id 1');
-      const attendee3 = createSimpleAttendee('attendee_3', targetAttendanceId, 'user id 1');
+      const attendee1 = createSimpleAttendee('attendee_1', targetAttendanceId, 'auth id 1');
+      const attendee2 = createSimpleAttendee('attendee_2', targetAttendanceId, 'auth id 1');
+      const attendee3 = createSimpleAttendee('attendee_3', targetAttendanceId, 'auth id 1');
 
       await attendeeRepository.query('DELETE FROM attendee;');
       const [createdAttendee1, createdAttendee2, createdAttendee3] = await attendeeRepository.save([attendee1, attendee2, attendee3]);
@@ -547,13 +547,13 @@ describe('RecordsService', () => {
     it('recordFilterDto의 take 수 만큼만 결과를 가지고 온다.', async () => {
       // Given
       const user_1 = new User();
-      user_1.id = 'user id 1';
+      user_1.id = 'auth id 1';
 
       const targetAttendanceId = 'testAttendanceId';
 
-      const attendee1 = createSimpleAttendee('attendee_1', targetAttendanceId, 'user id 1');
-      const attendee2 = createSimpleAttendee('attendee_2', targetAttendanceId, 'user id 1');
-      const attendee3 = createSimpleAttendee('attendee_3', targetAttendanceId, 'user id 1');
+      const attendee1 = createSimpleAttendee('attendee_1', targetAttendanceId, 'auth id 1');
+      const attendee2 = createSimpleAttendee('attendee_2', targetAttendanceId, 'auth id 1');
+      const attendee3 = createSimpleAttendee('attendee_3', targetAttendanceId, 'auth id 1');
 
       await attendeeRepository.query('DELETE FROM attendee;');
       const [createdAttendee1, createdAttendee2, createdAttendee3] = await attendeeRepository.save([attendee1, attendee2, attendee3]);
@@ -588,13 +588,13 @@ describe('RecordsService', () => {
     it('recordFilterDto의 skip 수를 제외한 만큼 결과를 가지고 온다.', async () => {
       // Given
       const user_1 = new User();
-      user_1.id = 'user id 1';
+      user_1.id = 'auth id 1';
 
       const targetAttendanceId = 'testAttendanceId';
 
-      const attendee1 = createSimpleAttendee('attendee_1', targetAttendanceId, 'user id 1');
-      const attendee2 = createSimpleAttendee('attendee_2', targetAttendanceId, 'user id 1');
-      const attendee3 = createSimpleAttendee('attendee_3', targetAttendanceId, 'user id 1');
+      const attendee1 = createSimpleAttendee('attendee_1', targetAttendanceId, 'auth id 1');
+      const attendee2 = createSimpleAttendee('attendee_2', targetAttendanceId, 'auth id 1');
+      const attendee3 = createSimpleAttendee('attendee_3', targetAttendanceId, 'auth id 1');
 
       await attendeeRepository.query('DELETE FROM attendee;');
       const [createdAttendee1, createdAttendee2, createdAttendee3] = await attendeeRepository.save([attendee1, attendee2, attendee3]);
@@ -631,7 +631,7 @@ describe('RecordsService', () => {
     it('attendeeId에 속한 전체 record를 조사한다.', async () => {
       // Given
       const user_1 = new User();
-      user_1.id = 'user id 1';
+      user_1.id = 'auth id 1';
 
       const targetAttendanceId = 'testAttendanceId';
 
@@ -661,7 +661,7 @@ describe('RecordsService', () => {
     it('filterDto의 year에 해당하는 record만 조회한다.', async () => {
       // Given
       const user_1 = new User();
-      user_1.id = 'user id 1';
+      user_1.id = 'auth id 1';
 
       const targetAttendeeId = 'Attendee Id 1';
 
@@ -689,7 +689,7 @@ describe('RecordsService', () => {
     it('filterDto의 year와 month에 해당하는 record만 조회한다.', async () => {
       // Given
       const user_1 = new User();
-      user_1.id = 'user id 1';
+      user_1.id = 'auth id 1';
 
       const targetAttendeeId = 'Attendee Id 1';
 
@@ -720,7 +720,7 @@ describe('RecordsService', () => {
     it('filterDto의 dateFrom 이상에 해당하는 Record를 조회한다.', async () => {
       // Given
       const user_1 = new User();
-      user_1.id = 'user id 1';
+      user_1.id = 'auth id 1';
 
       const targetAttendeeId = 'Attendee Id 1';
 
@@ -750,7 +750,7 @@ describe('RecordsService', () => {
     it('filterDto의 dateTo 미만에 해당하는 Record를 조회한다.', async () => {
       // Given
       const user_1 = new User();
-      user_1.id = 'user id 1';
+      user_1.id = 'auth id 1';
 
       const targetAttendeeId = 'Attendee Id 1';
 
@@ -780,7 +780,7 @@ describe('RecordsService', () => {
     it('filterDto의 dateFrom 이상 dateFrom 미만에 해당하는 Record를 조회한다.', async () => {
       // Given
       const user_1 = new User();
-      user_1.id = 'user id 1';
+      user_1.id = 'auth id 1';
 
       const targetAttendeeId = 'Attendee Id 1';
 
@@ -816,7 +816,7 @@ describe('RecordsService', () => {
       attendance.id = 'testAttendanceId';
 
       const user_1 = new User();
-      user_1.id = 'user id 1';
+      user_1.id = 'auth id 1';
 
       const attendee_1 = new Attendee();
       attendee_1.id = 'Attendee Id 1';
@@ -848,7 +848,7 @@ describe('RecordsService', () => {
       const targetAttendanceId = 'testAttendanceId';
 
       const user_1 = new User();
-      user_1.id = 'user id 1';
+      user_1.id = 'auth id 1';
 
       const attendee_1 = new Attendee();
       attendee_1.id = 'Attendee Id 1';
@@ -882,12 +882,12 @@ describe('RecordsService', () => {
     await userRepository.query(`DELETE FROM user;`);
 
     const user_1 = new User();
-    user_1.id = 'user id 1';
+    user_1.id = 'auth id 1';
     user_1.username = 'test id';
     user_1.password = 'testPWD';
     user_1.mobileNumber = '010-8098-1398';
     user_1.name = 'test name';
-    user_1.createId = 'user id';
+    user_1.createId = 'auth id';
 
     await userRepository.save(user_1);
 
@@ -896,7 +896,7 @@ describe('RecordsService', () => {
     attendance_1.title = 'testAttendanceTitle';
     attendance_1.description = 'description';
     attendance_1.type = AttendanceType.WEEKDAY;
-    attendance_1.createId = 'user id 1';
+    attendance_1.createId = 'auth id 1';
     attendance_1.createdAt = new Date();
 
     const attendance_2 = new Attendance();
@@ -904,7 +904,7 @@ describe('RecordsService', () => {
     attendance_2.title = 'testAttendanceTitle2';
     attendance_2.description = 'description';
     attendance_2.type = AttendanceType.WEEKDAY;
-    attendance_2.createId = 'user id 1';
+    attendance_2.createId = 'auth id 1';
     attendance_2.createdAt = new Date();
 
     await attendanceRepository.save(attendance_1);
@@ -938,6 +938,7 @@ describe('RecordsService', () => {
     await userRepository.query(`DELETE FROM user;`);
   }
 });
+
 function createRecordDto(date, day: DayType, status: AttendanceStatus, attendeeId) {
   const recordDto = new CreateRecordDto();
   recordDto.date = date;
@@ -962,6 +963,6 @@ function createSchedule(attendeeId: string, day: DayType, time: string) {
   schedule.attendeeId = attendeeId;
   schedule.day = day;
   schedule.time = time;
-  schedule.createId = 'user id 1';
+  schedule.createId = 'auth id 1';
   return schedule;
 }
