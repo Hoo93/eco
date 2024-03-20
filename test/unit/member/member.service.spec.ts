@@ -6,6 +6,7 @@ import { BadRequestException } from '@nestjs/common';
 import { Member } from '../../../src/members/entities/member.entity';
 import { MemberType } from '../../../src/auth/const/member-type.enum';
 import { MembersService } from '../../../src/members/members.service';
+import { UpdateMemberDto } from '../../../src/members/dto/update-member.dto';
 
 describe('MemberService Test', () => {
   let module: TestingModule;
@@ -85,6 +86,56 @@ describe('MemberService Test', () => {
     });
   });
 
+  describe('update method test', () => {
+    it('변경 성공시 success, message를 리턴한다.', async () => {
+      // Given
+      const member = createSimpleGeneralMember('test_id_1', 'pwd123!@#', '박상후', '01080981398');
+
+      const createResult = await memberRepository.insert(member);
+
+      const memberId = createResult.identifiers[0].id;
+
+      const updateMemberDto = new UpdateMemberDto();
+      updateMemberDto.nickname = '변경 닉네임';
+      updateMemberDto.birthYear = '2023';
+      updateMemberDto.birthday = '1117';
+      updateMemberDto.email = 'chang@email.test';
+
+      // When
+      const sut = await service.update(memberId, updateMemberDto);
+
+      // Then
+      expect(sut?.success).toBe(true);
+      expect(sut?.message).toBe('회원 수정이 완료되었습니다.');
+    });
+
+    it('email,birthYear,birthday,nickname을 수정할 수 있다.', async () => {
+      // Given
+      const member = createSimpleGeneralMember('test_id_1', 'pwd123!@#', '박상후', '01080981398');
+
+      const createResult = await memberRepository.insert(member);
+
+      const memberId = createResult.identifiers[0].id;
+
+      const updateMemberDto = new UpdateMemberDto();
+      updateMemberDto.nickname = '변경 닉네임';
+      updateMemberDto.birthYear = '2023';
+      updateMemberDto.birthday = '1117';
+      updateMemberDto.email = 'chang@email.test';
+
+      // When
+      await service.update(memberId, updateMemberDto);
+
+      const sut = await memberRepository.findOneBy({ id: memberId });
+
+      // Then
+      expect(sut.nickname).toBe('변경 닉네임');
+      expect(sut.birthYear).toBe('2023');
+      expect(sut.birthday).toBe('1117');
+      expect(sut.email).toBe('chang@email.test');
+    });
+  });
+
   async function setupTest() {}
 
   async function clear() {
@@ -101,5 +152,6 @@ function createSimpleGeneralMember(username: string, password: string, name: str
   member.name = name;
   member.mobileNumber = mobileNumber;
   member.createId = username;
+  member.nickname = username;
   return member;
 }
