@@ -65,7 +65,7 @@ export class AuthController {
     if (!email) {
       throw new BadRequestException('Email is required');
     }
-    return this.authService.isEmailAvailable(email);
+    return this.authService.isAvailableEmail(email);
   }
 
   @Get('/check-mobile-number')
@@ -74,6 +74,15 @@ export class AuthController {
     if (!mobileNumber) {
       throw new BadRequestException('Mobile number is required');
     }
-    return this.authService.isMobileNumberAvailable(mobileNumber);
+    return this.authService.isAvailableMobileNumber(mobileNumber);
+  }
+
+  @Get('/check-nickname')
+  @ApiOperation({ summary: '회원 휴대전화번호 중복 확인' })
+  async checkNicknameAvailability(@Query('nickname') nickname: string): Promise<CommonResponseDto<AvailabilityResult>> {
+    if (!nickname) {
+      throw new BadRequestException('nickname is required');
+    }
+    return this.authService.isAvailableNickname(nickname);
   }
 }

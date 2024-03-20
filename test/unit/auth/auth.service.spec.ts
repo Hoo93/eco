@@ -483,19 +483,19 @@ describe('MemberAuthService Test', function () {
       await memberRepository.insert(testMember);
 
       // When
-      const sut = await service.isAvailableMobileNumber(validationTargetNickname);
+      const sut = await service.isAvailableNickname(validationTargetNickname);
 
       // Then
       expect(sut.success).toBeTruthy();
       expect(sut.data.isAvailable).toBe(false);
     });
 
-    it('핸드폰번호가 존재하지 않는 경우 true를 반환한다.', async () => {
+    it('닉네임이 존재하지 않는 경우 true를 반환한다.', async () => {
       // Given
-      const validationTargetMobileNumber = '01080981398';
+      const validationTargetNickname = '불꽃방구 어피치';
 
       // When
-      const sut = await service.isAvailableMobileNumber(validationTargetMobileNumber);
+      const sut = await service.isAvailableNickname(validationTargetNickname);
 
       // Then
       expect(sut.success).toBeTruthy();
@@ -518,6 +518,7 @@ describe('MemberAuthService Test', function () {
       testMember.email = 'myEmail@naver.com';
       testMember.createId = 'test';
       testMember.refreshToken = 'refresh_token';
+      testMember.nickname = '불꽃방구 어피치';
 
       await memberRepository.insert(testMember);
 

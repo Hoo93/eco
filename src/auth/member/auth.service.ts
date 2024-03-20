@@ -97,7 +97,8 @@ export class AuthService {
   }
 
   public async isAvailableNickname(nickname: string): Promise<CommonResponseDto<AvailabilityResult>> {
-    return new CommonResponseDto('');
+    const found = await this.memberRepository.findOneBy({ nickname });
+    return new CommonResponseDto('Nickname Valid check success', new AvailabilityResult(!!!found));
   }
 
   private generateAccessToken(payload: JwtPayload) {
