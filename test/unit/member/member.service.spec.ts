@@ -36,6 +36,45 @@ describe('MemberService Test', () => {
     await module.close();
   });
 
+  describe('findOneById method test', () => {
+    it('해당 id의 회원을 조회한다.', async () => {
+      // Given
+      const member = createSimpleGeneralMember('test_id_1', 'pwd123!@#', '박상후', '01080981398');
+
+      const createResult = await memberRepository.insert(member);
+
+      const memberId = createResult.identifiers[0].id;
+
+      // When
+      const sut = await service.findOneById(memberId);
+
+      // Then
+      expect(sut.success).toBe(true);
+      expect(sut.message).toBe('회원 조회에 성공했습니다.');
+      expect(sut.data.username).toBe('test_id_1');
+      expect(sut.data.name).toBe('박상후');
+      expect(sut.data.mobileNumber).toBe('01080981398');
+      expect(sut.data.password).not.toBeDefined();
+    });
+
+    it('비밀번호를 제외한 회원 데이터를 반환한다.', async () => {
+      // Given
+      const member = createSimpleGeneralMember('test_id_1', 'pwd123!@#', '박상후', '01080981398');
+
+      const createResult = await memberRepository.insert(member);
+
+      const memberId = createResult.identifiers[0].id;
+
+      // When
+      const sut = await service.findOneById(memberId);
+
+      // Then
+      expect(sut.success).toBe(true);
+      expect(sut.message).toBe('회원 조회에 성공했습니다.');
+      expect(sut.data.password).not.toBeDefined();
+    });
+  });
+
   describe('softDelete method test', () => {
     it('입력한 id의 데이터를 softDelete 한다.', async () => {
       // Given
