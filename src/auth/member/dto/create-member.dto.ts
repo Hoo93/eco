@@ -84,6 +84,7 @@ export class CreateMemberDto extends CreateAuthDto {
     member.username = this.username;
     member.password = this.password;
     member.name = this.name;
+    member.nickname = this.nickname;
     member.mobileNumber = this.mobileNumber;
     member.email = this?.email || null;
     member.birthday = this?.birthday || null;

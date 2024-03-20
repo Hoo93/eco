@@ -66,6 +66,7 @@ describe('MemberAuthService Test', function () {
     dto.mobileNumber = '010-8098-1398';
     dto.birthday = '1117';
     dto.email = 'sksk8922@gmail.com';
+    dto.nickname = '불꽃방구 어피치';
 
     const signupResult = await service.signup(dto);
     expect(signupResult.success).toBeTruthy();
@@ -76,6 +77,7 @@ describe('MemberAuthService Test', function () {
     expect(signupResult.data.mobileNumber).toBe('010-8098-1398');
     expect(signupResult.data.birthday).toBe('1117');
     expect(signupResult.data.email).toBe('sksk8922@gmail.com');
+    expect(signupResult.data.nickname).toBe('불꽃방구 어피치');
     expect(signupResult.data.password).not.toBeDefined();
   });
 
@@ -93,6 +95,7 @@ describe('MemberAuthService Test', function () {
       testMember.mobileNumber = '01080981398';
       testMember.type = MemberType.GENERAL;
       testMember.createId = 'test';
+      testMember.nickname = '불꽃방구 어피치';
 
       await memberRepository.insert(testMember);
 
@@ -127,6 +130,7 @@ describe('MemberAuthService Test', function () {
       testMember.mobileNumber = '01080981398';
       testMember.type = MemberType.GENERAL;
       testMember.createId = 'test';
+      testMember.nickname = '불꽃방구 어피치';
 
       await memberRepository.insert(testMember);
 
@@ -156,6 +160,7 @@ describe('MemberAuthService Test', function () {
       testMember.mobileNumber = '01080981398';
       testMember.type = MemberType.GENERAL;
       testMember.createId = 'test';
+      testMember.nickname = '불꽃방구 어피치';
 
       await memberRepository.insert(testMember);
 
@@ -184,6 +189,7 @@ describe('MemberAuthService Test', function () {
       testMember.mobileNumber = '01080981398';
       testMember.type = MemberType.GENERAL;
       testMember.createId = 'test';
+      testMember.nickname = '불꽃방구 어피치';
 
       await memberRepository.insert(testMember);
 
@@ -222,6 +228,7 @@ describe('MemberAuthService Test', function () {
       testMember.mobileNumber = '01080981398';
       testMember.type = MemberType.GENERAL;
       testMember.createId = 'test';
+      testMember.nickname = '불꽃방구 어피치';
 
       await memberRepository.insert(testMember);
 
@@ -260,6 +267,7 @@ describe('MemberAuthService Test', function () {
       testMember.mobileNumber = '01080981398';
       testMember.type = MemberType.GENERAL;
       testMember.createId = 'test';
+      testMember.nickname = '불꽃방구 어피치';
 
       await memberRepository.insert(testMember);
 
@@ -294,6 +302,7 @@ describe('MemberAuthService Test', function () {
       testMember.mobileNumber = '01080981398';
       testMember.type = MemberType.GENERAL;
       testMember.createId = 'test';
+      testMember.nickname = '불꽃방구 어피치';
 
       testMember.isAutoLogin = true;
 
@@ -343,6 +352,7 @@ describe('MemberAuthService Test', function () {
       testMember.mobileNumber = '01080981398';
       testMember.createId = 'test';
       testMember.refreshToken = 'invalid_refresh_token';
+      testMember.nickname = '불꽃방구 어피치';
 
       const loginHistory = new MemberLoginHistory();
       loginHistory.id = 1;
@@ -384,6 +394,7 @@ describe('MemberAuthService Test', function () {
       testMember.mobileNumber = '01080981398';
       testMember.createId = 'test';
       testMember.refreshToken = 'refresh_token';
+      testMember.nickname = '불꽃방구 어피치';
 
       const loginHistory = new MemberLoginHistory();
       loginHistory.id = 1;
@@ -412,7 +423,7 @@ describe('MemberAuthService Test', function () {
     });
   });
 
-  describe('isEmailAvailable method test', () => {
+  describe('isAvailableEmail method test', () => {
     it('이미 이메일이 존재하는 경우 false를 반환한다.', async () => {
       // Given
       const validationTargetEmail = 'myEmail@naver.com';
@@ -427,11 +438,12 @@ describe('MemberAuthService Test', function () {
       testMember.mobileNumber = '01080981398';
       testMember.createId = 'test';
       testMember.refreshToken = 'refresh_token';
+      testMember.nickname = '불꽃방구 어피치';
 
       await memberRepository.insert(testMember);
 
       // When
-      const sut = await service.isEmailAvailable(validationTargetEmail);
+      const sut = await service.isAvailableEmail(validationTargetEmail);
 
       // Then
       expect(sut.success).toBeTruthy();
@@ -443,7 +455,7 @@ describe('MemberAuthService Test', function () {
       const validationTargetEmail = 'myEmail@naver.com';
 
       // When
-      const sut = await service.isEmailAvailable(validationTargetEmail);
+      const sut = await service.isAvailableEmail(validationTargetEmail);
 
       // Then
       expect(sut.success).toBeTruthy();
@@ -451,7 +463,47 @@ describe('MemberAuthService Test', function () {
     });
   });
 
-  describe('isMobileNumberAvailable method test', () => {
+  describe('isAvailableNickname method test', () => {
+    it('이미 닉네임이 존재하는 경우 false를 반환한다.', async () => {
+      // Given
+      const validationTargetNickname = '불꽃방구 어피치';
+
+      const testMember = new Member();
+      testMember.mobileNumber = '01080981398';
+      testMember.id = 'test';
+      testMember.type = MemberType.GENERAL;
+      testMember.name = '박상후';
+      testMember.username = 'TestUser1';
+      testMember.password = 'pwd123!@#';
+      testMember.email = 'myEmail@naver.com';
+      testMember.createId = 'test';
+      testMember.refreshToken = 'refresh_token';
+      testMember.nickname = '불꽃방구 어피치';
+
+      await memberRepository.insert(testMember);
+
+      // When
+      const sut = await service.isAvailableMobileNumber(validationTargetNickname);
+
+      // Then
+      expect(sut.success).toBeTruthy();
+      expect(sut.data.isAvailable).toBe(false);
+    });
+
+    it('핸드폰번호가 존재하지 않는 경우 true를 반환한다.', async () => {
+      // Given
+      const validationTargetMobileNumber = '01080981398';
+
+      // When
+      const sut = await service.isAvailableMobileNumber(validationTargetMobileNumber);
+
+      // Then
+      expect(sut.success).toBeTruthy();
+      expect(sut.data.isAvailable).toBe(true);
+    });
+  });
+
+  describe('isAvailableMobileNumber method test', () => {
     it('이미 핸드폰번호가 존재하는 경우 false를 반환한다.', async () => {
       // Given
       const validationTargetMobileNumber = '01080981398';
@@ -470,7 +522,7 @@ describe('MemberAuthService Test', function () {
       await memberRepository.insert(testMember);
 
       // When
-      const sut = await service.isMobileNumberAvailable(validationTargetMobileNumber);
+      const sut = await service.isAvailableMobileNumber(validationTargetMobileNumber);
 
       // Then
       expect(sut.success).toBeTruthy();
@@ -482,7 +534,7 @@ describe('MemberAuthService Test', function () {
       const validationTargetMobileNumber = '01080981398';
 
       // When
-      const sut = await service.isMobileNumberAvailable(validationTargetMobileNumber);
+      const sut = await service.isAvailableMobileNumber(validationTargetMobileNumber);
 
       // Then
       expect(sut.success).toBeTruthy();
