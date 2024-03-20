@@ -7,6 +7,7 @@ import { MemberType } from '../../auth/const/member-type.enum';
 @Unique(['email'])
 @Unique(['username'])
 @Unique(['mobileNumber'])
+@Unique(['nickname'])
 export class Member extends User {
   @PrimaryGeneratedColumn('uuid', { comment: '회원번호' })
   @ApiProperty({ description: '회원번호' })
