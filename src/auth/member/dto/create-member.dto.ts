@@ -22,6 +22,14 @@ export class CreateMemberDto extends CreateAuthDto {
   type: MemberType;
 
   @IsString()
+  @ApiProperty({
+    description: '회원 닉네임',
+    type: 'string',
+    example: '불꽃방귀 어피치',
+  })
+  nickname: string;
+
+  @IsString()
   @Matches(/^01[01]{1}\d{7,8}$/, {
     message: INVALID_MOBILENUMBER_MESSAGE,
   })

@@ -16,6 +16,10 @@ export class Member extends User {
   @ApiProperty({ description: '회원 이름', type: 'string' })
   type: MemberType;
 
+  @Column({ comment: '회원 닉네임', type: 'varchar' })
+  @ApiProperty({ description: '회원 닉네임', type: 'string' })
+  nickname: string;
+
   @Column({ comment: '전화번호', type: 'varchar' })
   @ApiProperty({ description: '전화번호', type: 'string' })
   mobileNumber: string;
