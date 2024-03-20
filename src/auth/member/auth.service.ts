@@ -9,7 +9,7 @@ import { JwtPayload } from '../const/jwtPayload.interface';
 import { CreateMemberDto } from './dto/create-member.dto';
 import { Member } from '../../members/entities/member.entity';
 import { UserType } from '../const/user-type.enum';
-import { CommandResponseDto } from '../../common/response/command-response.dto';
+import { CommonResponseDto } from '../../common/response/common-response.dto';
 import { MemberLoginHistory } from './entity/login-history.entity';
 import { TokenResponseDto } from '../dto/token-response.dto';
 import { AvailabilityResult } from '../../common/response/is-available-res';
@@ -22,17 +22,17 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  public async signup(createMemberDto: CreateMemberDto): Promise<CommandResponseDto<Member>> {
+  public async signup(createMemberDto: CreateMemberDto): Promise<CommonResponseDto<Member>> {
     const member = createMemberDto.toEntity();
     await member.hashPassword();
     const createdMember = await this.memberRepository.save(member);
 
     delete createdMember.password;
 
-    return new CommandResponseDto('SUCCESS SIGNUP', createdMember);
+    return new CommonResponseDto('SUCCESS SIGNUP', createdMember);
   }
 
-  public async signIn(signInDto: SignInDto, ip: string, loginAt: Date = new Date()): Promise<CommandResponseDto<TokenResponseDto>> {
+  public async signIn(signInDto: SignInDto, ip: string, loginAt: Date = new Date()): Promise<CommonResponseDto<TokenResponseDto>> {
     const member = await this.validateMember(signInDto.username, signInDto.password);
 
     const payload: JwtPayload = {
@@ -50,10 +50,10 @@ export class AuthService {
 
     await this.memberRepository.update(member.id, { isAutoLogin: signInDto.isAutoLogin ?? false });
 
-    return new CommandResponseDto('SUCCESS SIGNIN', new TokenResponseDto(accessToken, refreshToken));
+    return new CommonResponseDto('SUCCESS SIGNIN', new TokenResponseDto(accessToken, refreshToken));
   }
 
-  public async refreshToken(oldRefreshToken: string, ip: string): Promise<CommandResponseDto<TokenResponseDto>> {
+  public async refreshToken(oldRefreshToken: string, ip: string): Promise<CommonResponseDto<TokenResponseDto>> {
     const decoded: JwtPayload = this.verifyRefreshToken(oldRefreshToken);
     // const member = await this.memberRepository.findOneBy({ id: decoded.id });
 
@@ -82,18 +82,18 @@ export class AuthService {
 
     await this.saveRefreshToken(recentLoginHistory.member.id, newRefreshToken);
 
-    return new CommandResponseDto('SUCCESS REFRESH TOKEN', new TokenResponseDto(newAccessToken, newRefreshToken));
+    return new CommonResponseDto('SUCCESS REFRESH TOKEN', new TokenResponseDto(newAccessToken, newRefreshToken));
   }
 
-  public async isEmailAvailable(email: string): Promise<CommandResponseDto<AvailabilityResult>> {
+  public async isEmailAvailable(email: string): Promise<CommonResponseDto<AvailabilityResult>> {
     const found = await this.memberRepository.findOneBy({ email });
 
-    return new CommandResponseDto('Email Valid check success', new AvailabilityResult(!!!found));
+    return new CommonResponseDto('Email Valid check success', new AvailabilityResult(!!!found));
   }
 
-  public async isMobileNumberAvailable(mobileNumber: string): Promise<CommandResponseDto<AvailabilityResult>> {
+  public async isMobileNumberAvailable(mobileNumber: string): Promise<CommonResponseDto<AvailabilityResult>> {
     const found = await this.memberRepository.findOneBy({ mobileNumber });
-    return new CommandResponseDto('MobileNumber Valid check success', new AvailabilityResult(!!!found));
+    return new CommonResponseDto('MobileNumber Valid check success', new AvailabilityResult(!!!found));
   }
 
   private generateAccessToken(payload: JwtPayload) {

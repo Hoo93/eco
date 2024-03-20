@@ -1,4 +1,4 @@
-export class CommandResponseDto<T> {
+export class CommonResponseDto<T> {
   success: boolean;
   message: string;
   data?: T;

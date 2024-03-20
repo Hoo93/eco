@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateMemberDto } from '../auth/member/dto/create-member.dto';
 import { UpdateMemberDto } from './dto/update-member.dto';
-import { CommonResponseDto } from '../common/response/command-response.dto';
+import { CommonResponseDto } from '../common/response/common-response.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Member } from './entities/member.entity';
 import { Repository } from 'typeorm';

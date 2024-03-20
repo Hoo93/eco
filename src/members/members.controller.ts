@@ -4,7 +4,7 @@ import { UpdateMemberDto } from './dto/update-member.dto';
 import { GetUser } from '../common/decorator/user.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CommonResponseDto } from '../common/response/command-response.dto';
+import { CommonResponseDto } from '../common/response/common-response.dto';
 import { Member } from './entities/member.entity';
 
 @Controller('members')
@@ -13,11 +13,6 @@ import { Member } from './entities/member.entity';
 @ApiBearerAuth('token')
 export class MembersController {
   constructor(private readonly membersService: MembersService) {}
-
-  @Get()
-  findAll() {
-    return this.membersService.findAll();
-  }
 
   @Get(':id')
   @ApiOperation({ summary: '회원 상세 조회' })
