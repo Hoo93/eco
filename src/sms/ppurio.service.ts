@@ -2,7 +2,7 @@ import { SmsInterface } from './sms.interface';
 import { HttpService } from '@nestjs/axios';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { lastValueFrom, map } from 'rxjs';
-import { LocalDateTime } from 'js-joda';
+import { LocalDateTime } from '@js-joda/core';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -51,7 +51,7 @@ export class PpurioService implements SmsInterface {
       const response = await lastValueFrom(
         this.httpService.post(this.URI + '/v1/message', request_body, { headers }).pipe(map((response) => response.data)),
       );
-      console.log(response);
+
       return response;
     } catch (error) {
       console.error('Error fetching sending message:', error);
@@ -59,7 +59,7 @@ export class PpurioService implements SmsInterface {
     }
   }
 
-  public async getAccessToken() {
+  public async setAccessToken() {
     const encodedCredentials = this.encodeCredentials();
 
     const headers = {
@@ -71,15 +71,15 @@ export class PpurioService implements SmsInterface {
     try {
       const response = await lastValueFrom(this.httpService.post(endPoint, {}, { headers }).pipe(map((response) => response.data)));
 
-      this.setAccessToken(response);
+      this.access_token = response;
     } catch (error) {
       console.error('Error fetching access token:', error);
       throw error;
     }
   }
 
-  private setAccessToken(access_token: { token: string; type: string; expired: string }) {
-    this.access_token = access_token;
+  public getAccessToken() {
+    return this.access_token
   }
 
   private encodeCredentials(): string {
