@@ -22,6 +22,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@js-joda/core": "^5.6.2",
     "@nestjs/axios": "^3.0.2",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.0",
@@ -38,7 +39,6 @@
     "class-validator": "^0.14.0",
     "cross-env": "^7.0.3",
     "is-number": "^7.0.0",
-    "js-joda": "^1.11.0",
     "mysql2": "^3.6.5",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
