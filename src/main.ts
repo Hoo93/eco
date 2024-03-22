@@ -10,6 +10,8 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
 
+  app.setGlobalPrefix('eco/api')
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
