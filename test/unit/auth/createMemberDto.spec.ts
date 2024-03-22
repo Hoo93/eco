@@ -87,6 +87,15 @@ describe('create-member.dto TEST', () => {
       expect(validationErrors[0].constraints.matches).toBe(INVALID_NICKNAME_MESSAGE);
     });
 
+    it('닉네임은 한글,영문,숫자,_,-로 이루어져야 합니다.', async () => {
+      const validNickname = 'ok_nick';
+      createMemberDto.nickname = validNickname;
+
+      const validationErrors = await validate(createMemberDto);
+
+      expect(validationErrors).toHaveLength(0);
+    });
+
     it('닉네임은 2글자 이상이어야 합니다.', async () => {
       const tooShortNickname = '짧';
       createMemberDto.nickname = tooShortNickname;

@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsOptional, IsString, Matches } from 'class-validator';
+import { IsEmail, IsEnum, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Member } from '../../../members/entities/member.entity';
 import { MemberType } from '../../const/member-type.enum';
@@ -8,6 +8,9 @@ import {
   INVALID_BIRTHYEAR_MESSAGE,
   INVALID_EMAIL_MESSAGE,
   INVALID_MOBILENUMBER_MESSAGE,
+  INVALID_NICKNAME_MAX_LENGTH_MESSAGE,
+  INVALID_NICKNAME_MESSAGE,
+  INVALID_NICKNAME_MIN_LENGTH_MESSAGE,
 } from '../../const/error-message';
 import { MobileNumberTransform } from '../../../common/decorator/phoneNumber.decorator';
 
@@ -22,6 +25,11 @@ export class CreateMemberDto extends CreateAuthDto {
   type: MemberType;
 
   @IsString()
+  @MinLength(2, { message: INVALID_NICKNAME_MIN_LENGTH_MESSAGE })
+  @MaxLength(10, { message: INVALID_NICKNAME_MAX_LENGTH_MESSAGE })
+  @Matches(/^[a-zA-Z0-9-_]+$/, {
+    message: INVALID_NICKNAME_MESSAGE,
+  })
   @ApiProperty({
     description: '회원 닉네임',
     type: 'string',
