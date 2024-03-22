@@ -23,7 +23,7 @@ export class PpurioService implements SmsInterface {
   public async requestSend(content: string, targetMobileNumber: string) {
     const now = LocalDateTime.now();
     if (!this.access_token || now.isAfter(convertToDateTime(this.access_token.expired))) {
-      await this.getAccessToken();
+      await this.setAccessToken();
     }
     const byte_size = getByteSize(content);
 
@@ -48,18 +48,16 @@ export class PpurioService implements SmsInterface {
     request_body.targetCount = request_body.targets.length;
 
     try {
-      const response = await lastValueFrom(
+      return await lastValueFrom(
         this.httpService.post(this.URI + '/v1/message', request_body, { headers }).pipe(map((response) => response.data)),
       );
-
-      return response;
     } catch (error) {
       console.error('Error fetching sending message:', error);
       throw error;
     }
   }
 
-  public async setAccessToken() {
+  public async setAccessToken(): Promise<void> {
     const encodedCredentials = this.encodeCredentials();
 
     const headers = {
@@ -69,9 +67,7 @@ export class PpurioService implements SmsInterface {
     const endPoint = this.URI + '/v1/token';
 
     try {
-      const response = await lastValueFrom(this.httpService.post(endPoint, {}, { headers }).pipe(map((response) => response.data)));
-
-      this.access_token = response;
+      this.access_token = await lastValueFrom(this.httpService.post(endPoint, {}, { headers }).pipe(map((response) => response.data)));
     } catch (error) {
       console.error('Error fetching access token:', error);
       throw error;
@@ -79,19 +75,18 @@ export class PpurioService implements SmsInterface {
   }
 
   public getAccessToken() {
-    return this.access_token
+    return this.access_token;
   }
 
   private encodeCredentials(): string {
-    console.log(`${this.PPURIO_ACCOUNT}:${this.API_KEY}`);
     return Buffer.from(`${this.PPURIO_ACCOUNT}:${this.API_KEY}`).toString('base64');
   }
 }
 
-function getByteSize(str) {
+function getByteSize(content: string) {
   let size = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
+  for (let i = 0; i < content.length; i++) {
+    const char = content.charCodeAt(i);
     if (char < 128) {
       size += 1;
     } else if (char < 2048) {
@@ -105,7 +100,7 @@ function getByteSize(str) {
   return size;
 }
 
-function convertToDateTime(input) {
+function convertToDateTime(input: string) {
   // 입력된 문자열을 `yyyy-MM-ddTHH:mm:ss` 형식으로 변환
   const formattedInput = `${input.substring(0, 4)}-${input.substring(4, 6)}-${input.substring(6, 8)}T${input.substring(8, 10)}:${input.substring(10, 12)}:${input.substring(12, 14)}`;
   return LocalDateTime.parse(formattedInput);

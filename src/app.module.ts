@@ -8,6 +8,7 @@ import { ManagersModule } from './managers/managers.module';
 import { Member } from './members/entities/member.entity';
 import { Manager } from './managers/entities/manager.entity';
 import { MemberLoginHistory } from './auth/member/entity/login-history.entity';
+import { SmsModule } from './sms/sms.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { MemberLoginHistory } from './auth/member/entity/login-history.entity';
     AuthModule,
     MembersModule,
     ManagersModule,
+    SmsModule,
   ],
 })
 export class AppModule {}
