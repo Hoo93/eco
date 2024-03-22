@@ -10,6 +10,9 @@ import {
   INVALID_NAME_MAX_LENGTH_MESSAGE,
   INVALID_NAME_MESSAGE,
   INVALID_NAME_MIN_LENGTH_MESSAGE,
+  INVALID_NICKNAME_MAX_LENGTH_MESSAGE,
+  INVALID_NICKNAME_MESSAGE,
+  INVALID_NICKNAME_MIN_LENGTH_MESSAGE,
   INVALID_PASSWORD_MAX_LENGTH_MESSAGE,
   INVALID_PASSWORD_MESSAGE,
   INVALID_PASSWORD_MIN_LENGTH_MESSAGE,
@@ -72,6 +75,36 @@ describe('create-member.dto TEST', () => {
     const validationErrors = await validate(createMemberDto);
 
     expect(validationErrors[0].constraints.maxLength).toBe(INVALID_NAME_MAX_LENGTH_MESSAGE);
+  });
+
+  describe('닉네임 검증 테스트', () => {
+    it('닉네임은 한글,영문,숫자,_,-로 이루어져야 합니다.', async () => {
+      const invalidNickname = 'noSpecial#';
+      createMemberDto.nickname = invalidNickname;
+
+      const validationErrors = await validate(createMemberDto);
+
+      expect(validationErrors[0].constraints.matches).toBe(INVALID_NICKNAME_MESSAGE);
+    });
+
+    it('닉네임은 2글자 이상이어야 합니다.', async () => {
+      const tooShortNickname = '짧';
+      createMemberDto.nickname = tooShortNickname;
+
+      const validationErrors = await validate(createMemberDto);
+      console.log(validationErrors);
+
+      expect(validationErrors[0].constraints.minLength).toBe(INVALID_NICKNAME_MIN_LENGTH_MESSAGE);
+    });
+
+    it('닉네임은 20글자 이하이어야 합니다.', async () => {
+      const tooLongNickname = 'ThisNicknameIsTooLongForOurSystem';
+      createMemberDto.nickname = tooLongNickname;
+
+      const validationErrors = await validate(createMemberDto);
+
+      expect(validationErrors[0].constraints.maxLength).toBe(INVALID_NICKNAME_MAX_LENGTH_MESSAGE);
+    });
   });
 
   it('비밀번호는 각각 최소 1개 이상의 한글,영문,숫자로 이루어져야 합니다.', async () => {

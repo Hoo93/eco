@@ -14,3 +14,7 @@ export const INVALID_EMAIL_MESSAGE = '이메일 주소를 정확히 입력해 �
 export const INVALID_BIRTHYEAR_MESSAGE = '생년 4자리를 입력해 주세요.';
 
 export const INVALID_BIRTHDAY_MESSAGE = '생일 4자리를 입력해 주세요.';
+
+export const INVALID_NICKNAME_MIN_LENGTH_MESSAGE = '닉네임은 최소 2글자 이상이어야 합니다.';
+export const INVALID_NICKNAME_MAX_LENGTH_MESSAGE = '닉네임은 최대 10글자 이하이어야 합니다.';
+export const INVALID_NICKNAME_MESSAGE = '닉네임은 한글,영문,숫자,_,-로만 이루어져야 합니다';
