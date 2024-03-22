@@ -10,7 +10,7 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
 
-  app.setGlobalPrefix('eco/api')
+  app.setGlobalPrefix('eco');
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -41,7 +41,7 @@ async function bootstrap() {
     )
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('swagger', app, document);
+  SwaggerModule.setup('eco/swagger', app, document);
 
   logger.verbose('====================================');
   logger.verbose(`==== SERVER IS RUNNING ON ${port} =====`);
