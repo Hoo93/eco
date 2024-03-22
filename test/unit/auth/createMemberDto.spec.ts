@@ -27,6 +27,7 @@ describe('create-member.dto TEST', () => {
       type: MemberType.GENERAL,
       password: 'testpwd123!',
       name: 'testname',
+      nickname: 'testNickname',
       mobileNumber: '010-8098-1398',
       age: 31,
       email: 'sksk8922@gmail.com',
@@ -59,6 +60,7 @@ describe('create-member.dto TEST', () => {
     createMemberDto.name = tooShortName;
 
     const validationErrors = await validate(createMemberDto);
+    console.log(validationErrors);
 
     expect(validationErrors[0].constraints.minLength).toBe(INVALID_NAME_MIN_LENGTH_MESSAGE);
   });
