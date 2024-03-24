@@ -1,4 +1,4 @@
-import { SmsInterface } from './sms.interface';
+import { SmsInterface } from './const/sms.interface';
 import { HttpService } from '@nestjs/axios';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { lastValueFrom, map } from 'rxjs';
