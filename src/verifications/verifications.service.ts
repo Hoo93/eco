@@ -12,9 +12,9 @@ export class VerificationsService {
     ) {
     }
 
-    public createVerificationCode():CommonResponseDto<{code:string}> {
+    public createVerificationCode():CommonResponseDto<{verificationCode:string}> {
         const verificationCode = this.generateSixDigitNumber();
-        return new CommonResponseDto("SUCCESS CREATE VERIFICATION CODE", { code: verificationCode });
+        return new CommonResponseDto("SUCCESS CREATE VERIFICATION CODE", { verificationCode: verificationCode });
     }
 
     public saveVerification(code: Verification) {}
