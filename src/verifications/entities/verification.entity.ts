@@ -9,9 +9,9 @@ export class Verification extends BaseTimeEntity {
   @ApiProperty({ description: '인증내역 PK', type: 'number' })
   id: number;
 
-  @Column({ comment: '회원 PK', type: 'varchar' })
-  @ApiProperty({ description: '회원 PK', type: 'string' })
-  memberId: string;
+  @Column({ comment: '휴대전화번호', type: 'varchar' })
+  @ApiProperty({ description: '휴대전화번호', type: 'string' })
+  mobileNumber: string;
 
   @Column({ comment: '인증코드', type: 'varchar' })
   @ApiProperty({ description: '인증코드', type: 'string' })
@@ -20,9 +20,4 @@ export class Verification extends BaseTimeEntity {
   @Column({ comment: '인증여부', type: 'boolean' })
   @ApiProperty({ description: '인증여부', type: 'boolean' })
   isVerified: boolean;
-
-  // 단방향 관계로 설정
-  @ManyToOne(() => Member)
-  @JoinColumn({ name: 'memberId' })
-  member: Member;
 }
