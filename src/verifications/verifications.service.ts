@@ -3,6 +3,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Verification} from "./entities/verification.entity";
 import {Repository} from "typeorm";
 import { CommonResponseDto } from "../common/response/common-response.dto";
+import { VerificationCode } from "./verificationCodeResponse.dto";
 
 @Injectable()
 export class VerificationsService {
@@ -12,9 +13,8 @@ export class VerificationsService {
     ) {
     }
 
-    public createVerificationCode():CommonResponseDto<{verificationCode:string}> {
-        const verificationCode = this.generateSixDigitNumber();
-        return new CommonResponseDto("SUCCESS CREATE VERIFICATION CODE", { verificationCode: verificationCode });
+    public createVerificationCode():CommonResponseDto<VerificationCode> {
+        return new CommonResponseDto("SUCCESS CREATE VERIFICATION CODE", new VerificationCode(this.generateSixDigitNumber()));
     }
 
     public saveVerification(code: Verification) {}
