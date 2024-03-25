@@ -13,8 +13,19 @@ export class VerificationsService {
     }
 
     public createVerificationCode():CommonResponseDto<{code:string}> {
-        return new CommonResponseDto("", { code: "" });
+        const verificationCode = this.generateSixDigitNumber();
+        return new CommonResponseDto("SUCCESS CREATE VERIFICATION CODE", { code: verificationCode });
     }
 
     public saveVerification(code: Verification) {}
+
+
+    private generateSixDigitNumber():string {
+        let result = ''
+
+        for (let i = 0; i < 6; i ++) {
+            result += Math.floor(Math.random()*10)
+        }
+        return result
+    }
 }
