@@ -12,7 +12,7 @@ export class VerificationsService {
     ) {
     }
 
-    public async createVerificationCode():Promise<CommonResponseDto<{code:string}>> {
+    public createVerificationCode():CommonResponseDto<{code:string}> {
         return new CommonResponseDto("", { code: "" });
     }
 

@@ -38,10 +38,10 @@ describe('VerificationsService', () => {
   });
 
   describe("createVerificationCode method test", function() {
-    it('요청 성공 시 success,message,data를 리턴한다.', async () => {
+    it('요청 성공 시 success,message,data를 리턴한다.', () => {
       // Given
       // When
-      const sut = await service.createVerificationCode()
+      const sut = service.createVerificationCode()
       // Then
       expect(sut.success).toBe(true);
       expect(sut.message).toBe('SUCCESS CREATE VERIFICATION CODE');
@@ -51,9 +51,17 @@ describe('VerificationsService', () => {
     it('6자리 숫자로 된 인증번호를 리턴한다.', async () => {
       // Given
       // When
-      const sut = await service.createVerificationCode()
+      const sut = service.createVerificationCode()
       // Then
       expect(sut.data).toMatch(/^\d{4}$/)
+    })
+
+    it.each(Array.from({length:5})) ('6자리 숫자 인증코드를 생성한다.', () => {
+      // Given
+      // When
+      const sut = service.createVerificationCode()
+      // Then
+      expect(sut.data.code).toMatch(/^\d{6}$/)
     })
     
   });
