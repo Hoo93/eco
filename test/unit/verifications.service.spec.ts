@@ -77,7 +77,7 @@ describe('VerificationsService', () => {
 
       // Then
       expect(sut.success).toBe(true);
-      expect(sut.message).toBe('SUCCESS SAVE VERIFICATION');
+      expect(sut.message).toBe('SUCCESS SAVE VERIFICATION CODE');
     });
 
     it('입력받은 code와 휴대전화 번호를 저장한다.', async () => {
