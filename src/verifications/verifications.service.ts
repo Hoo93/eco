@@ -6,6 +6,7 @@ import { CommonResponseDto } from '../common/response/common-response.dto';
 import { VerificationCode } from './verificationCodeResponse.dto';
 import { CreateVerificationDto } from './create-verification.dto';
 import { IdResponseDto } from '../common/response/id-response.dto';
+import { VerifyCodeDto } from './verificate-code.dto';
 
 @Injectable()
 export class VerificationsService {
@@ -21,6 +22,10 @@ export class VerificationsService {
       throw new BadRequestException('인증코드 생성에 실패했습니다.');
     }
     return new CommonResponseDto('SUCCESS SAVE VERIFICATION CODE', { id: result.identifiers[0].id });
+  }
+
+  public async verifyCode(verifyCodeDto: VerifyCodeDto): Promise<CommonResponseDto<any>> {
+    return new CommonResponseDto('');
   }
 
   private generateSixDigitNumber(): string {

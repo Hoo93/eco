@@ -6,6 +6,7 @@ import { Verification } from '../../src/verifications/entities/verification.enti
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { CreateVerificationDto } from '../../src/verifications/create-verification.dto';
 import { BadRequestException } from '@nestjs/common';
+import { VerifyCodeDto } from '../../src/verifications/verificate-code.dto';
 
 describe('VerificationsService', () => {
   let module: TestingModule;
@@ -125,12 +126,45 @@ describe('VerificationsService', () => {
     });
   });
 
-  describe('verficateCode method test', () => {
+  describe('verifyCode method test', () => {
     it('요청 성공시 success,message 를 리턴한다.', async () => {
       // Given
+      const verification = new Verification();
+      verification.id = 1;
+      verification.code = '002468';
+      verification.mobileNumber = '01080981398';
+
+      await verificationRepository.insert(verification);
+
+      const verifyCodeDto = new VerifyCodeDto();
+      verifyCodeDto.id = 1;
+      verifyCodeDto.code = '002468';
+
       // When
-      // const sut = await service.verficateCode();
+      const sut = await service.verifyCode(verifyCodeDto);
+
       // Then
+      expect(sut.success).toBe(true);
+      expect(sut.message).toBe('SUCCESS VERIFY CODE');
+    });
+
+    it('인증 실패시 success,message를 리턴한다.', async () => {
+      // Given
+      const verification = new Verification();
+      verification.id = 1;
+      verification.code = '002468';
+      verification.mobileNumber = '01080981398';
+
+      await verificationRepository.insert(verification);
+
+      const verifyCodeDto = new VerifyCodeDto();
+      verifyCodeDto.id = 1;
+      verifyCodeDto.code = '000000';
+
+      // When, Then
+      await expect(async () => await service.verifyCode(verifyCodeDto)).rejects.toThrow(
+        new BadRequestException('인증코드가 일치하지 않습니다.'),
+      );
     });
   });
 
