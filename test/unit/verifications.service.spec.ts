@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { Verification } from '../../src/verifications/entities/verification.entity';
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { CreateVerificationDto } from '../../src/verifications/create-verification.dto';
+import { BadRequestException } from '@nestjs/common';
 
 describe('VerificationsService', () => {
   let module: TestingModule;
@@ -90,6 +91,22 @@ describe('VerificationsService', () => {
 
       // Then
       expect(sut.data?.id).toBeDefined();
+    });
+
+    it('verification insert 실패 시 오류를 리턴한다..', async () => {
+      // Given
+      const createVerificationDto = new CreateVerificationDto();
+      createVerificationDto.code = '002468';
+      createVerificationDto.mobileNumber = '01080981398';
+
+      verificationRepository.insert = jest.fn().mockResolvedValue({
+        raw: { affectedRows: 0 }, // 성공적인 케이스를 가정
+        identifiers: [], // 삽입된 엔티티의 식별자를 반환하는 예시
+      });
+      // When, Then
+      await expect(async () => {
+        await service.saveVerification(createVerificationDto);
+      }).rejects.toThrow(new BadRequestException('인증코드 생성에 실패했습니다.'));
     });
 
     it('입력받은 code와 휴대전화 번호를 저장한다.', async () => {
