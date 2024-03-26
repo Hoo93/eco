@@ -1,10 +1,8 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { Member } from '../../members/entities/member.entity';
-import { BaseTimeEntity } from '../../common/entities/BaseTimeEntity';
 
 @Entity()
-export class Verification extends BaseTimeEntity {
+export class Verification {
   @PrimaryGeneratedColumn('increment')
   @ApiProperty({ description: '인증내역 PK', type: 'number' })
   id: number;
@@ -17,7 +15,10 @@ export class Verification extends BaseTimeEntity {
   @ApiProperty({ description: '인증코드', type: 'string' })
   code: string;
 
-  @Column({ comment: '인증여부', type: 'boolean' })
+  @Column({ nullable: false, comment: '인증여부', type: 'boolean', default: false })
   @ApiProperty({ description: '인증여부', type: 'boolean' })
   isVerified: boolean;
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
 }
