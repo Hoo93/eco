@@ -148,6 +148,28 @@ describe('VerificationsService', () => {
       expect(sut.message).toBe('인증에 성공했습니다.');
     });
 
+    it('요청 성공시 isVerified를 true로 업데이트한다.', async () => {
+      // Given
+      const verification = new Verification();
+      verification.id = 1;
+      verification.code = '002468';
+      verification.mobileNumber = '01080981398';
+
+      await verificationRepository.insert(verification);
+
+      const verifyCodeDto = new VerifyCodeDto();
+      verifyCodeDto.id = 1;
+      verifyCodeDto.code = '002468';
+
+      // When
+      await service.verifyCode(verifyCodeDto);
+
+      const sut = await verificationRepository.findOneBy({ id: verification.id });
+
+      // Then
+      expect(sut.isVerified).toBe(true);
+    });
+
     it('코드 불일치시 BadRequestException를 리턴한다.', async () => {
       // Given
       const verification = new Verification();
