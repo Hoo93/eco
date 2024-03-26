@@ -32,6 +32,7 @@ export class VerificationsService {
     if (!verification.isEqual(verifyCodeDto.code)) {
       throw new BadRequestException('인증코드가 일치하지 않습니다.');
     }
+    await this.verificationRepository.update(verifyCodeDto.id, { isVerified: true });
     return new CommonResponseDto('인증에 성공했습니다.');
   }
 
