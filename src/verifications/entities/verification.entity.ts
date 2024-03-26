@@ -21,4 +21,8 @@ export class Verification {
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
+
+  public isEqual(code: string) {
+    return this.code === code;
+  }
 }

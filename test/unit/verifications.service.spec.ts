@@ -145,10 +145,10 @@ describe('VerificationsService', () => {
 
       // Then
       expect(sut.success).toBe(true);
-      expect(sut.message).toBe('SUCCESS VERIFY CODE');
+      expect(sut.message).toBe('인증에 성공했습니다.');
     });
 
-    it('인증 실패시 success,message를 리턴한다.', async () => {
+    it('코드 불일치시 BadRequestException를 리턴한다.', async () => {
       // Given
       const verification = new Verification();
       verification.id = 1;
@@ -164,6 +164,25 @@ describe('VerificationsService', () => {
       // When, Then
       await expect(async () => await service.verifyCode(verifyCodeDto)).rejects.toThrow(
         new BadRequestException('인증코드가 일치하지 않습니다.'),
+      );
+    });
+
+    it('입력한 PK 값의 인증내역이 없는 경우 BadRequestException를 리턴한다.', async () => {
+      // Given
+      const verification = new Verification();
+      verification.id = 113;
+      verification.code = '002468';
+      verification.mobileNumber = '01080981398';
+
+      await verificationRepository.insert(verification);
+
+      const verifyCodeDto = new VerifyCodeDto();
+      verifyCodeDto.id = 1;
+      verifyCodeDto.code = '000000';
+
+      // When, Then
+      await expect(async () => await service.verifyCode(verifyCodeDto)).rejects.toThrow(
+        new BadRequestException('해당 인증내역이 존재하지 않습니다.'),
       );
     });
   });

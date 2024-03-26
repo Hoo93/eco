@@ -25,7 +25,14 @@ export class VerificationsService {
   }
 
   public async verifyCode(verifyCodeDto: VerifyCodeDto): Promise<CommonResponseDto<any>> {
-    return new CommonResponseDto('');
+    const verification = await this.verificationRepository.findOneBy({ id: verifyCodeDto.id });
+    if (!verification) {
+      throw new BadRequestException('해당 인증내역이 존재하지 않습니다.');
+    }
+    if (!verification.isEqual(verifyCodeDto.code)) {
+      throw new BadRequestException('인증코드가 일치하지 않습니다.');
+    }
+    return new CommonResponseDto('인증에 성공했습니다.');
   }
 
   private generateSixDigitNumber(): string {
