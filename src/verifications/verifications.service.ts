@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Verification } from './entities/verification.entity';
-import { Repository } from 'typeorm';
+import { InsertResult, Repository } from 'typeorm';
 import { CommonResponseDto } from '../common/response/common-response.dto';
 import { VerificationCode } from './verificationCodeResponse.dto';
 import { CreateVerificationDto } from './create-verification.dto';
+import { IdResponseDto } from '../common/response/id-response.dto';
 
 @Injectable()
 export class VerificationsService {
@@ -14,9 +15,12 @@ export class VerificationsService {
     return new CommonResponseDto('SUCCESS CREATE VERIFICATION CODE', new VerificationCode(this.generateSixDigitNumber()));
   }
 
-  public async saveVerification(createVerificationDto: CreateVerificationDto): Promise<CommonResponseDto<any>> {
-    await this.verificationRepository.insert({ ...createVerificationDto });
-    return new CommonResponseDto('SUCCESS SAVE VERIFICATION CODE');
+  public async saveVerification(createVerificationDto: CreateVerificationDto): Promise<CommonResponseDto<IdResponseDto>> {
+    const result: InsertResult = await this.verificationRepository.insert({ ...createVerificationDto });
+    if (result.raw.affectedRows <= 0) {
+      throw new BadRequestException('인증코드 생성에 실패했습니다.');
+    }
+    return new CommonResponseDto('SUCCESS SAVE VERIFICATION CODE', { id: result.identifiers[0].id });
   }
 
   private generateSixDigitNumber(): string {
