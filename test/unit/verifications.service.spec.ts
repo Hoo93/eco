@@ -80,6 +80,18 @@ describe('VerificationsService', () => {
       expect(sut.message).toBe('SUCCESS SAVE VERIFICATION CODE');
     });
 
+    it('요청 성공 시 data에 id를 리턴한다.', async () => {
+      // Given
+      const createVerificationDto = new CreateVerificationDto();
+      createVerificationDto.code = '002468';
+      createVerificationDto.mobileNumber = '01080981398';
+      // When
+      const sut = await service.saveVerification(createVerificationDto);
+
+      // Then
+      expect(sut.data?.id).toBeDefined();
+    });
+
     it('입력받은 code와 휴대전화 번호를 저장한다.', async () => {
       // Given
       const createVerificationDto = new CreateVerificationDto();
@@ -93,6 +105,15 @@ describe('VerificationsService', () => {
       // Then
       expect(sut.mobileNumber).toBe('01080981398');
       expect(sut.code).toBe('002468');
+    });
+  });
+
+  describe('verficateCode method test', () => {
+    it('요청 성공시 success,message 를 리턴한다.', async () => {
+      // Given
+      // When
+      // const sut = await service.verficateCode();
+      // Then
     });
   });
 
