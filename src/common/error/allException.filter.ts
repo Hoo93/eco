@@ -30,10 +30,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     this.logger.error({
       message: errorResponse.message,
-      exception: exception.stack,
       path: errorResponse.path,
       statusCode: httpStatus,
     });
+    this.logger.error(exception.stack.toString());
 
     httpAdapter.reply(ctx.getResponse(), errorResponse, httpStatus);
   }
