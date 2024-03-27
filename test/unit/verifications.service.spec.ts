@@ -262,6 +262,34 @@ describe('VerificationsService', () => {
       expect(sut.data.mobileNumber).toBe('01080981398')
     });
 
+    it("가장 최신 인증내역을 리턴한다.", async () => {
+      // Given
+      const mobileNumber = '01080981398'
+
+      const latest_verification = new Verification();
+      const latest = new Date('2024-03-27 12:00:00')
+      latest_verification.code = '002468';
+      latest_verification.mobileNumber = '01080981398';
+      latest_verification.createdAt = latest
+
+      const old_verification = new Verification();
+      old_verification.code = '000000';
+      old_verification.mobileNumber = '01080981398';
+      old_verification.createdAt = new Date('2024-03-27 11:59:00')
+
+      await verificationRepository.insert([old_verification,latest_verification]);
+
+      // When
+      const sut = await service.findLatestVerificationByMobileNumber(mobileNumber)
+
+      // Then
+      expect(sut.data.mobileNumber).toBe('01080981398')
+      expect(sut.data.createdAt).toStrictEqual(latest)
+      expect(sut.data.code).toBe('002468')
+    });
+    
+    
+
     it("해당 전화번호로 인증내역이 없는 경우 에러를 발생시킨다.", async () => {
       // Given
       const mobileNumber = '01080981398'
