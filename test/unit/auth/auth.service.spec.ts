@@ -21,6 +21,7 @@ describe('MemberAuthService Test', function () {
   let service: AuthService;
   let memberRepository: Repository<Member>;
   let memberLoginHistoryRepository: Repository<MemberLoginHistory>;
+  let verificationRepository: Repository<Verification>;
   let jwtService: MockJwtService;
 
   beforeAll(async () => {
@@ -37,9 +38,10 @@ describe('MemberAuthService Test', function () {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
+    jwtService = module.get<MockJwtService>(JwtService);
     memberRepository = module.get(getRepositoryToken(Member));
     memberLoginHistoryRepository = module.get(getRepositoryToken(MemberLoginHistory));
-    jwtService = module.get<MockJwtService>(JwtService);
+    verificationRepository = module.get(getRepositoryToken(Verification));
   });
 
   beforeEach(async () => {
@@ -60,29 +62,89 @@ describe('MemberAuthService Test', function () {
     expect(service.signup).toBeDefined();
   });
 
-  it('signup return User without password', async () => {
-    const dto = new CreateMemberDto();
-    dto.username = 'testID';
-    dto.type = MemberType.GENERAL;
-    dto.password = 'testpwd123!';
-    dto.name = 'testname';
-    dto.mobileNumber = '010-8098-1398';
-    dto.birthday = '1117';
-    dto.email = 'sksk8922@gmail.com';
-    dto.nickname = '불꽃방구 어피치';
+  describe("signup method test", function() {
+    it('최근 인증 내역이 있는 경우에만 회원가입 할 수 있다.',async () => {
+      // Given
+      const dto = new CreateMemberDto();
+      dto.username = 'testID';
+      dto.type = MemberType.GENERAL;
+      dto.password = 'testpwd123!';
+      dto.name = 'testname';
+      dto.mobileNumber = '01080981398';
+      dto.birthday = '1117';
+      dto.email = 'sksk8922@gmail.com';
+      dto.nickname = '불꽃방구 어피치';
 
-    const signupResult = await service.signup(dto);
-    expect(signupResult.success).toBeTruthy();
-    expect(signupResult.message).toBe('SUCCESS SIGNUP');
-    expect(signupResult.data.username).toBe('testID');
-    expect(signupResult.data.type).toBe(MemberType.GENERAL);
-    expect(signupResult.data.name).toBe('testname');
-    expect(signupResult.data.mobileNumber).toBe('010-8098-1398');
-    expect(signupResult.data.birthday).toBe('1117');
-    expect(signupResult.data.email).toBe('sksk8922@gmail.com');
-    expect(signupResult.data.nickname).toBe('불꽃방구 어피치');
-    expect(signupResult.data.password).not.toBeDefined();
+      // When, Then
+      await expect(async () => {
+        await service.signup(dto);
+      }).rejects.toThrow()
+    })
+    
+    it('요청 성공시 success, message를 리턴한다', async () => {
+      // Given
+      const dto = new CreateMemberDto();
+      dto.username = 'testID';
+      dto.type = MemberType.GENERAL;
+      dto.password = 'testpwd123!';
+      dto.name = 'testname';
+      dto.mobileNumber = '01080981398';
+      dto.birthday = '1117';
+      dto.email = 'sksk8922@gmail.com';
+      dto.nickname = '불꽃방구 어피치';
+
+      const verification = new Verification()
+      verification.mobileNumber = dto.mobileNumber;
+      verification.code = '000000';
+      verification.isVerified = true;
+
+      await verificationRepository.insert(verification)
+
+      // When
+      const signupResult = await service.signup(dto);
+
+      // Then
+      expect(signupResult.success).toBeTruthy();
+      expect(signupResult.message).toBe('SUCCESS SIGNUP');
+    });
+
+    it('signup return User without password', async () => {
+      // Given
+      const dto = new CreateMemberDto();
+      dto.username = 'testID';
+      dto.type = MemberType.GENERAL;
+      dto.password = 'testpwd123!';
+      dto.name = 'testname';
+      dto.mobileNumber = '01080981398';
+      dto.birthday = '1117';
+      dto.email = 'sksk8922@gmail.com';
+      dto.nickname = '불꽃방구 어피치';
+
+      const verification = new Verification()
+      verification.mobileNumber = dto.mobileNumber;
+      verification.code = '000000';
+      verification.isVerified = true;
+
+      await verificationRepository.insert(verification)
+
+      // When
+      const signupResult = await service.signup(dto);
+
+      // Then
+      expect(signupResult.success).toBeTruthy();
+      expect(signupResult.message).toBe('SUCCESS SIGNUP');
+      expect(signupResult.data.username).toBe('testID');
+      expect(signupResult.data.type).toBe(MemberType.GENERAL);
+      expect(signupResult.data.name).toBe('testname');
+      expect(signupResult.data.mobileNumber).toBe('01080981398');
+      expect(signupResult.data.birthday).toBe('1117');
+      expect(signupResult.data.email).toBe('sksk8922@gmail.com');
+      expect(signupResult.data.nickname).toBe('불꽃방구 어피치');
+      expect(signupResult.data.password).not.toBeDefined();
+    });
   });
+
+
 
   describe('signIn method test', () => {
     it('should return access-token and refresh-token', async () => {
@@ -551,6 +613,7 @@ describe('MemberAuthService Test', function () {
   async function clear() {
     jest.restoreAllMocks(); // 각 테스트가 종료될 때 마다 jest의 모든 모의를 초기화
     await memberLoginHistoryRepository.query('DELETE FROM member_login_history;');
+    await verificationRepository.query('DELETE FROM verification;');
     await memberRepository.query('DELETE FROM member;');
   }
 });
