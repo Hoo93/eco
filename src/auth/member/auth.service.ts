@@ -25,6 +25,12 @@ export class AuthService {
   ) {}
 
   public async signup(createMemberDto: CreateMemberDto): Promise<CommonResponseDto<Member>> {
+    const verificationHistory = await this.verficationService.findLatestVerificationByMobileNumber(createMemberDto.mobileNumber);
+
+    if (!verificationHistory.success || !verificationHistory.data.isVerified) {
+      throw new BadRequestException('핸드폰 인증 내역이 없습니다.')
+    }
+
     const member = createMemberDto.toEntity();
     await member.hashPassword();
     const createdMember = await this.memberRepository.save(member);
