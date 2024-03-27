@@ -3,10 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Verification } from './entities/verification.entity';
 import { InsertResult, Repository } from 'typeorm';
 import { CommonResponseDto } from '../common/response/common-response.dto';
-import { VerificationCode } from './verificationCodeResponse.dto';
-import { CreateVerificationDto } from './create-verification.dto';
+import { VerificationCode } from './const/verificationCodeResponse.dto';
+import { CreateVerificationDto } from './const/create-verification.dto';
 import { IdResponseDto } from '../common/response/id-response.dto';
-import { VerifyCodeDto } from './verificate-code.dto';
+import { VerifyCodeDto } from './const/verificate-code.dto';
 
 @Injectable()
 export class VerificationsService {

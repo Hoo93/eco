@@ -9,6 +9,7 @@ import { Member } from './members/entities/member.entity';
 import { Manager } from './managers/entities/manager.entity';
 import { MemberLoginHistory } from './auth/member/entity/login-history.entity';
 import { SmsModule } from './sms/sms.module';
+import { VerificationsModule } from './verifications/verifications.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { SmsModule } from './sms/sms.module';
     MembersModule,
     ManagersModule,
     SmsModule,
+    VerificationsModule,
   ],
 })
 export class AppModule {}

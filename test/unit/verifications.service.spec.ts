@@ -4,9 +4,9 @@ import { TestModule } from '../../src/test.module';
 import { Repository } from 'typeorm';
 import { Verification } from '../../src/verifications/entities/verification.entity';
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
-import { CreateVerificationDto } from '../../src/verifications/create-verification.dto';
+import { CreateVerificationDto } from '../../src/verifications/const/create-verification.dto';
 import { BadRequestException } from '@nestjs/common';
-import { VerifyCodeDto } from '../../src/verifications/verificate-code.dto';
+import { VerifyCodeDto } from '../../src/verifications/const/verificate-code.dto';
 
 describe('VerificationsService', () => {
   let module: TestingModule;
