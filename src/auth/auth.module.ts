@@ -11,16 +11,18 @@ import { ManagerAuthService } from './manager/manager-auth.service';
 import { MembersModule } from '../members/members.module';
 import { ManagersModule } from '../managers/managers.module';
 import { MemberLoginHistory } from './member/entity/login-history.entity';
+import { VerificationsService } from "../verifications/verifications.service";
+import { Verification } from "../verifications/entities/verification.entity";
 
 @Module({
   imports: [
     PassportModule,
     MembersModule,
     ManagersModule,
-    TypeOrmModule.forFeature([Member, Manager, MemberLoginHistory]),
+    TypeOrmModule.forFeature([Member, Manager, MemberLoginHistory,Verification]),
     JwtModule.register({}),
   ],
   controllers: [AuthController, ManagerAuthController],
-  providers: [AuthService, ManagerAuthService],
+  providers: [AuthService, ManagerAuthService,VerificationsService],
 })
 export class AuthModule {}

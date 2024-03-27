@@ -13,6 +13,8 @@ import { MemberType } from '../../../src/auth/const/member-type.enum';
 import { MemberLoginHistory } from '../../../src/auth/member/entity/login-history.entity';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { UserType } from '../../../src/auth/const/user-type.enum';
+import { VerificationsService } from "../../../src/verifications/verifications.service";
+import { Verification } from "../../../src/verifications/entities/verification.entity";
 
 describe('MemberAuthService Test', function () {
   let module: TestingModule;
@@ -23,9 +25,10 @@ describe('MemberAuthService Test', function () {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [TestModule, TypeOrmModule.forFeature([Member, MemberLoginHistory])],
+      imports: [TestModule, TypeOrmModule.forFeature([Member, MemberLoginHistory,Verification])],
       providers: [
         AuthService,
+        VerificationsService,
         {
           provide: JwtService,
           useClass: MockJwtService,

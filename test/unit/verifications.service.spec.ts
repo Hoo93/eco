@@ -288,8 +288,6 @@ describe('VerificationsService', () => {
       expect(sut.data.code).toBe('002468')
     });
     
-    
-
     it("해당 전화번호로 인증내역이 없는 경우 에러를 발생시킨다.", async () => {
       // Given
       const mobileNumber = '01080981398'

@@ -21,7 +21,7 @@ export class VerificationsController {
   @ApiResponse({
     status: 200,
     description: '인증번호 발급',
-    type: CommonResponseDto<IdResponseDto>,
+    type: CommonResponseDto<IdResponseDto>
   })
   @ApiBody({
     type: AuthenticationRequestDto,

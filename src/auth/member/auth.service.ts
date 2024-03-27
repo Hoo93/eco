@@ -13,6 +13,7 @@ import { CommonResponseDto } from '../../common/response/common-response.dto';
 import { MemberLoginHistory } from './entity/login-history.entity';
 import { TokenResponseDto } from '../dto/token-response.dto';
 import { AvailabilityResult } from '../../common/response/is-available-res';
+import { VerificationsService } from "../../verifications/verifications.service";
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,7 @@ export class AuthService {
     @InjectRepository(Member) private memberRepository: Repository<Member>,
     @InjectRepository(MemberLoginHistory) private memberLoginHistoryRepository: Repository<MemberLoginHistory>,
     private jwtService: JwtService,
+    private verficationService: VerificationsService
   ) {}
 
   public async signup(createMemberDto: CreateMemberDto): Promise<CommonResponseDto<Member>> {
