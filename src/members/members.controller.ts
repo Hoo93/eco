@@ -9,7 +9,7 @@ import { Member } from './entities/member.entity';
 
 @Controller('members')
 @UseGuards(AuthGuard('jwt'))
-@ApiTags('[클라이언트] 회원')
+@ApiTags('[서비스] 회원')
 @ApiBearerAuth('token')
 export class MembersController {
   constructor(private readonly membersService: MembersService) {}

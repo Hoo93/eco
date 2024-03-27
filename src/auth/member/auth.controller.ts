@@ -78,7 +78,7 @@ export class AuthController {
   }
 
   @Get('/check-nickname')
-  @ApiOperation({ summary: '회원 휴대전화번호 중복 확인' })
+  @ApiOperation({ summary: '회원 아이디 중복 확인' })
   async checkNicknameAvailability(@Query('nickname') nickname: string): Promise<CommonResponseDto<AvailabilityResult>> {
     if (!nickname) {
       throw new BadRequestException('nickname is required');
