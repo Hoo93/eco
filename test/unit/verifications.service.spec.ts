@@ -7,16 +7,31 @@ import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { CreateVerificationDto } from '../../src/verifications/const/create-verification.dto';
 import { BadRequestException } from '@nestjs/common';
 import { VerifyCodeDto } from '../../src/verifications/const/verificate-code.dto';
+import { PpurioService } from "../../src/sms/ppurio.service";
+import { HttpModule, HttpService } from "@nestjs/axios";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { LocalDateTime } from '@js-joda/core'
 
 describe('VerificationsService', () => {
   let module: TestingModule;
   let service: VerificationsService;
   let verificationRepository: Repository<Verification>;
+  let originalInsert;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [TestModule, TypeOrmModule.forFeature([Verification])],
-      providers: [VerificationsService],
+      imports: [TestModule, TypeOrmModule.forFeature([Verification]),HttpModule,ConfigModule],
+      providers: [
+        VerificationsService,
+        PpurioService,
+        ConfigService,
+        {
+          provide: HttpService,
+          useValue: {
+            post: jest.fn(), // HttpService의 post 메소드 모킹
+          },
+        },
+      ],
     }).compile();
 
     service = module.get<VerificationsService>(VerificationsService);
@@ -94,22 +109,6 @@ describe('VerificationsService', () => {
       expect(sut.data?.id).toBeDefined();
     });
 
-    it('verification insert 실패 시 오류를 리턴한다..', async () => {
-      // Given
-      const createVerificationDto = new CreateVerificationDto();
-      createVerificationDto.code = '002468';
-      createVerificationDto.mobileNumber = '01080981398';
-
-      verificationRepository.insert = jest.fn().mockResolvedValue({
-        raw: { affectedRows: 0 }, // 성공적인 케이스를 가정
-        identifiers: [], // 삽입된 엔티티의 식별자를 반환하는 예시
-      });
-      // When, Then
-      await expect(async () => {
-        await service.saveVerification(createVerificationDto);
-      }).rejects.toThrow(new BadRequestException('인증코드 생성에 실패했습니다.'));
-    });
-
     it('입력받은 code와 휴대전화 번호를 저장한다.', async () => {
       // Given
       const createVerificationDto = new CreateVerificationDto();
@@ -123,6 +122,22 @@ describe('VerificationsService', () => {
       // Then
       expect(sut.mobileNumber).toBe('01080981398');
       expect(sut.code).toBe('002468');
+    });
+
+    it('verification insert 실패 시 오류를 리턴한다..', async () => {
+      // Given
+      const createVerificationDto = new CreateVerificationDto();
+      createVerificationDto.code = '002468';
+      createVerificationDto.mobileNumber = '01080981398';
+
+      verificationRepository.insert = jest.fn().mockResolvedValueOnce({
+        raw: { affectedRows: 0 }, // 성공적인 케이스를 가정
+        identifiers: [], // 삽입된 엔티티의 식별자를 반환하는 예시
+      });
+      // When, Then
+      await expect(async () => {
+        await service.saveVerification(createVerificationDto);
+      }).rejects.toThrow(new BadRequestException('인증코드 생성에 실패했습니다.'));
     });
   });
 
@@ -209,10 +224,56 @@ describe('VerificationsService', () => {
     });
   });
 
-  async function setupTest() {}
+  describe("findLatestVerificationByMobileNumber method test", function() {
+    it("요청 성공시 success,message를 리턴한다.", async () => {
+      // Given
+      const mobileNumber = '01080981398'
+
+      // When
+      const sut = await service.findLatestVerificationByMobileNumber(mobileNumber)
+
+      // Then
+      expect(sut.message).toBe('인증내역 조회 성공')
+      expect(sut.success).toBe(true)
+    });
+
+    it("요청 성공시 verification data 를 리턴한다.", async () => {
+      // Given
+      const mobileNumber = '01080981398'
+
+      const verification = new Verification();
+      verification.id = 113;
+      verification.code = '002468';
+      verification.mobileNumber = '01080981398';
+
+      await verificationRepository.insert(verification);
+
+      // When
+      const sut = await service.findLatestVerificationByMobileNumber(mobileNumber)
+
+      // Then
+      expect(sut.data.mobileNumber).toBe('01080981398')
+    });
+
+    it("해당 전화번호로 인증내역이 없는 경우 에러를 발생시킨다.", async () => {
+      // Given
+      const mobileNumber = '01080981398'
+
+      // When, Then
+      await expect(async () => {
+        await service.findLatestVerificationByMobileNumber(mobileNumber)
+      }).rejects.toThrow(new BadRequestException('인증내역이 존재하지 않습니다.'))
+    });
+
+  });
+
+  async function setupTest() {
+    originalInsert = verificationRepository.insert;
+  }
 
   async function clear() {
     jest.restoreAllMocks(); // 각 테스트가 종료될 때 마다 jest의 모든 모의를 초기화
+    verificationRepository.insert = originalInsert
     await verificationRepository.query('DELETE FROM verification;');
   }
 });

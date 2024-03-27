@@ -48,7 +48,7 @@ export class VerificationsController {
   @ApiResponse({
     status: 200,
     description: '인증번호 검증',
-    type: CommonResponseDto<any>,
+    type: CommonResponseDto<any>
   })
   @ApiBody({
     type: VerifyCodeDto,
