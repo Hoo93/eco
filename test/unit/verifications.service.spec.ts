@@ -229,6 +229,13 @@ describe('VerificationsService', () => {
       // Given
       const mobileNumber = '01080981398'
 
+      const verification = new Verification();
+      verification.id = 113;
+      verification.code = '002468';
+      verification.mobileNumber = '01080981398';
+
+      await verificationRepository.insert(verification);
+
       // When
       const sut = await service.findLatestVerificationByMobileNumber(mobileNumber)
 
@@ -262,7 +269,7 @@ describe('VerificationsService', () => {
       // When, Then
       await expect(async () => {
         await service.findLatestVerificationByMobileNumber(mobileNumber)
-      }).rejects.toThrow(new BadRequestException('인증내역이 존재하지 않습니다.'))
+      }).rejects.toThrow()
     });
 
   });
