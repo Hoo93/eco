@@ -36,6 +36,20 @@ export class VerificationsService {
     return new CommonResponseDto('인증에 성공했습니다.');
   }
 
+  public async findLatestVerificationByMobileNumber(mobileNumber:string):Promise<CommonResponseDto<Verification>> {
+
+    const latestVerification = await this.verificationRepository.findOneOrFail({
+      where: {
+        mobileNumber
+      },
+      order: {
+        createdAt: "DESC"
+      }
+    })
+
+    return new CommonResponseDto('인증내역 조회 성공',latestVerification)
+  }
+
   private generateSixDigitNumber(): string {
     let result = '';
 
