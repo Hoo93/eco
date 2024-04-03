@@ -10,6 +10,7 @@ import { Manager } from './managers/entities/manager.entity';
 import { MemberLoginHistory } from './auth/member/entity/login-history.entity';
 import { SmsModule } from './sms/sms.module';
 import { VerificationsModule } from './verifications/verifications.module';
+import { Verification } from './verifications/entities/verification.entity';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { VerificationsModule } from './verifications/verifications.module';
     }),
     TypeOrmModule.forRoot({
       ...getOrmConfig(),
-      entities: [Member, Manager, MemberLoginHistory],
+      entities: [Member, Manager, MemberLoginHistory, Verification],
     }),
     AuthModule,
     MembersModule,
