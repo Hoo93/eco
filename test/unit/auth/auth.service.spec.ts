@@ -13,8 +13,8 @@ import { MemberType } from '../../../src/auth/const/member-type.enum';
 import { MemberLoginHistory } from '../../../src/auth/member/entity/login-history.entity';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { UserType } from '../../../src/auth/const/user-type.enum';
-import { VerificationsService } from "../../../src/verifications/verifications.service";
-import { Verification } from "../../../src/verifications/entities/verification.entity";
+import { VerificationsService } from '../../../src/verifications/verifications.service';
+import { Verification } from '../../../src/verifications/entities/verification.entity';
 
 describe('MemberAuthService Test', function () {
   let module: TestingModule;
@@ -26,7 +26,7 @@ describe('MemberAuthService Test', function () {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [TestModule, TypeOrmModule.forFeature([Member, MemberLoginHistory,Verification])],
+      imports: [TestModule, TypeOrmModule.forFeature([Member, MemberLoginHistory, Verification])],
       providers: [
         AuthService,
         VerificationsService,
@@ -62,8 +62,8 @@ describe('MemberAuthService Test', function () {
     expect(service.signup).toBeDefined();
   });
 
-  describe("signup method test", function() {
-    it('최근 인증 내역이 있는 경우에만 회원가입 할 수 있다.',async () => {
+  describe('signup method test', function () {
+    it('최근 인증 내역이 있는 경우에만 회원가입 할 수 있다.', async () => {
       // Given
       const dto = new CreateMemberDto();
       dto.username = 'testID';
@@ -78,9 +78,9 @@ describe('MemberAuthService Test', function () {
       // When, Then
       await expect(async () => {
         await service.signup(dto);
-      }).rejects.toThrow()
-    })
-    
+      }).rejects.toThrow();
+    });
+
     it('요청 성공시 success, message를 리턴한다', async () => {
       // Given
       const dto = new CreateMemberDto();
@@ -93,12 +93,12 @@ describe('MemberAuthService Test', function () {
       dto.email = 'sksk8922@gmail.com';
       dto.nickname = '불꽃방구 어피치';
 
-      const verification = new Verification()
+      const verification = new Verification();
       verification.mobileNumber = dto.mobileNumber;
       verification.code = '000000';
       verification.isVerified = true;
 
-      await verificationRepository.insert(verification)
+      await verificationRepository.insert(verification);
 
       // When
       const signupResult = await service.signup(dto);
@@ -120,12 +120,12 @@ describe('MemberAuthService Test', function () {
       dto.email = 'sksk8922@gmail.com';
       dto.nickname = '불꽃방구 어피치';
 
-      const verification = new Verification()
+      const verification = new Verification();
       verification.mobileNumber = dto.mobileNumber;
       verification.code = '000000';
       verification.isVerified = true;
 
-      await verificationRepository.insert(verification)
+      await verificationRepository.insert(verification);
 
       // When
       const signupResult = await service.signup(dto);
@@ -144,12 +144,12 @@ describe('MemberAuthService Test', function () {
     });
   });
 
-
-
   describe('signIn method test', () => {
     it('should return access-token and refresh-token', async () => {
       // Given
-      jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => Promise.resolve(true));
+      jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => {
+        return Promise.resolve(true);
+      });
 
       const testMember = new Member();
       testMember.id = 'test';
