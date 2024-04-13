@@ -11,6 +11,7 @@ import { MemberLoginHistory } from './auth/member/entity/login-history.entity';
 import { SmsModule } from './sms/sms.module';
 import { VerificationsModule } from './verifications/verifications.module';
 import { Verification } from './verifications/entities/verification.entity';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { Verification } from './verifications/entities/verification.entity';
     ManagersModule,
     SmsModule,
     VerificationsModule,
+    ProductsModule,
   ],
 })
 export class AppModule {}
