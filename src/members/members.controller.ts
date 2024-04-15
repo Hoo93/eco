@@ -8,7 +8,7 @@ import { CommonResponseDto } from '../common/response/common-response.dto';
 import { Member } from './entities/member.entity';
 
 @Controller('members')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('strategy'))
 @ApiTags('[서비스] 회원')
 @ApiBearerAuth('token')
 export class MembersController {

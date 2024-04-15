@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '../../common/entities/user.entity';
@@ -8,6 +8,7 @@ import { CreateMemberDto } from './dto/create-member.dto';
 import { CurrentIp } from '../../common/decorator/current-ip.decorator';
 import { AvailabilityResult } from '../../common/response/is-available-res';
 import { CommonResponseDto } from '../../common/response/common-response.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 @ApiTags('[서비스] 인증')
@@ -57,6 +58,16 @@ export class AuthController {
   })
   async refreshAccessToken(@Body() refreshTokenDto: RefreshTokenDto, @CurrentIp() ip: string) {
     return this.authService.refreshToken(refreshTokenDto.refreshToken, ip);
+  }
+
+  @Get('/kakao')
+  @UseGuards(AuthGuard('kakao'))
+  kakaoLogin() {}
+
+  @Get('/kakao/callback')
+  @UseGuards(AuthGuard('kakao'))
+  kakaoLoginCallback(@Req() req, @Res() res) {
+    const kakaoUser = req.user;
   }
 
   @Get('/check-email')

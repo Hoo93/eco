@@ -1,22 +1,24 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-kakao';
+import { OAuth } from '../const/oauth.interface';
+import { LoginType } from '../const/login-type.enum';
 
 export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
   constructor() {
     super({
       clientID: process.env.KAKAO_ID,
-      callbackURL: '/auth/kakao/callback',
+      callbackURL: '/eco/auth/kakao/callback',
     });
   }
 
   async validate(accessToken, refreshToken, profile, done): Promise<any> {
-    console.log(profile);
-    console.log(profile._json.kakao_account);
-    const { id, username, displayName } = profile;
-    const user = {
-      kakaoId: id,
+    const { id, username, displayName, email, mobile_number } = profile;
+    const user: OAuth = {
+      id: id,
+      type: LoginType.KAKAO,
       username: username || displayName,
-      accessToken,
+      email,
+      mobileNumber: mobile_number,
     };
     done(null, user);
   }
