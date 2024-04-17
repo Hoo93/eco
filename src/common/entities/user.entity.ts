@@ -5,11 +5,11 @@ import { SALT } from '../../auth/const/auth.const';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export abstract class User extends BaseTimeEntity {
-  @Column({ comment: '회원 아이디', type: 'varchar' })
-  @ApiProperty({ description: '회원 아이디', type: 'string' })
+  @Column({ comment: '회원 아이디', type: 'varchar', nullable: true })
+  @ApiPropertyOptional({ description: '회원 아이디', type: 'string' })
   username: string;
 
-  @Column({ comment: '회원 비밀번호', type: 'varchar' })
+  @Column({ comment: '회원 비밀번호', type: 'varchar', nullable: true })
   @ApiProperty({ description: '회원 비밀번호', type: 'string' })
   password: string;
 

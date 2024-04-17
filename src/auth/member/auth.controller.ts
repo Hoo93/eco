@@ -9,6 +9,8 @@ import { CurrentIp } from '../../common/decorator/current-ip.decorator';
 import { AvailabilityResult } from '../../common/response/is-available-res';
 import { CommonResponseDto } from '../../common/response/common-response.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { OAuth } from '../const/oauth.interface';
+import { Request, Response } from 'express';
 
 @Controller('auth')
 @ApiTags('[서비스] 인증')
@@ -62,12 +64,25 @@ export class AuthController {
 
   @Get('/kakao')
   @UseGuards(AuthGuard('kakao'))
-  kakaoLogin() {}
+  kakaoLogin(@Req() req, @Res() res) {}
 
   @Get('/kakao/callback')
   @UseGuards(AuthGuard('kakao'))
-  kakaoLoginCallback(@Req() req, @Res() res) {
-    const kakaoUser = req.user;
+  async kakaoLoginCallback(@Req() req: Request, @Res() res: Response, @CurrentIp() ip: string) {
+    const kakaoUser: OAuth = {
+      username: req.user?.['username'],
+      loginType: req.user?.['loginType'],
+      name: req.user?.['name'],
+      nickname: req.user?.['nickname'],
+      email: req.user?.['email'],
+      mobileNumber: req.user?.['mobileNumber'],
+    };
+
+    const tokenResponse = await this.authService.oauthSignIn(kakaoUser, ip);
+
+    res.cookie('accessToken', tokenResponse.accessToken);
+    res.cookie('refreshToken', tokenResponse.refreshToken);
+    res.redirect('/eco');
   }
 
   @Get('/check-email')

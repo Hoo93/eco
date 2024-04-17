@@ -13,7 +13,9 @@ import { CommonResponseDto } from '../../common/response/common-response.dto';
 import { MemberLoginHistory } from './entity/login-history.entity';
 import { TokenResponseDto } from '../dto/token-response.dto';
 import { AvailabilityResult } from '../../common/response/is-available-res';
-import { VerificationsService } from "../../verifications/verifications.service";
+import { VerificationsService } from '../../verifications/verifications.service';
+import { OAuth } from '../const/oauth.interface';
+import { MemberType } from '../const/member-type.enum';
 
 @Injectable()
 export class AuthService {
@@ -21,14 +23,14 @@ export class AuthService {
     @InjectRepository(Member) private memberRepository: Repository<Member>,
     @InjectRepository(MemberLoginHistory) private memberLoginHistoryRepository: Repository<MemberLoginHistory>,
     private jwtService: JwtService,
-    private verficationService: VerificationsService
+    private verficationService: VerificationsService,
   ) {}
 
   public async signup(createMemberDto: CreateMemberDto): Promise<CommonResponseDto<Member>> {
     const verificationHistory = await this.verficationService.findLatestVerificationByMobileNumber(createMemberDto.mobileNumber);
 
     if (!verificationHistory.success || !verificationHistory.data.isVerified) {
-      throw new BadRequestException('핸드폰 인증 내역이 없습니다.')
+      throw new BadRequestException('핸드폰 인증 내역이 없습니다.');
     }
 
     const member = createMemberDto.toEntity();
@@ -59,6 +61,34 @@ export class AuthService {
     await this.memberRepository.update(member.id, { isAutoLogin: signInDto.isAutoLogin ?? false });
 
     return new CommonResponseDto('SUCCESS SIGNIN', new TokenResponseDto(accessToken, refreshToken));
+  }
+
+  public async oauthSignIn(socialUser: OAuth, ip: string, loginAt: Date = new Date()): Promise<TokenResponseDto> {
+    let member = await this.memberRepository.findOne({
+      where: {
+        username: socialUser.username,
+        loginType: socialUser.loginType,
+      },
+    });
+
+    if (!member) {
+      member = await this.createOAuthMember(socialUser);
+    }
+
+    const payload: JwtPayload = {
+      id: member.id,
+      username: member.username,
+      userType: UserType.MEMBER,
+    };
+
+    const accessToken = this.generateAccessToken(payload);
+    const refreshToken = this.generateRefreshToken(payload, false);
+
+    await this.saveRefreshToken(member.id, refreshToken);
+
+    await this.createLoginHistory(member.id, ip, loginAt);
+
+    return new TokenResponseDto(accessToken, refreshToken);
   }
 
   public async refreshToken(oldRefreshToken: string, ip: string): Promise<CommonResponseDto<TokenResponseDto>> {
@@ -107,6 +137,38 @@ export class AuthService {
   public async isAvailableNickname(nickname: string): Promise<CommonResponseDto<AvailabilityResult>> {
     const found = await this.memberRepository.findOneBy({ nickname });
     return new CommonResponseDto('Nickname Valid check success', new AvailabilityResult(!!!found));
+  }
+
+  private async createOAuthMember(socialUser: OAuth) {
+    const findOption = [];
+    if (socialUser.email) {
+      findOption.push({ email: socialUser.email });
+    }
+    if (socialUser.mobileNumber) {
+      findOption.push({ mobileNumber: socialUser.mobileNumber });
+    }
+
+    if (findOption.length > 0) {
+      const found = await this.memberRepository.findOne({ where: findOption });
+
+      if (found) {
+        throw new BadRequestException('이미 가입된 회원입니다.');
+      }
+    }
+
+    const newMember = new Member();
+    newMember.username = socialUser.username;
+    newMember.type = MemberType.GENERAL;
+    newMember.loginType = socialUser.loginType;
+    newMember.name = socialUser.name;
+    newMember.nickname = socialUser.nickname;
+    newMember.email = socialUser.email;
+    newMember.loginType = socialUser.loginType;
+    newMember.isAutoLogin = false;
+    newMember.createId = socialUser.username;
+
+    const createdMember = await this.memberRepository.save(newMember);
+    return createdMember;
   }
 
   private generateAccessToken(payload: JwtPayload) {

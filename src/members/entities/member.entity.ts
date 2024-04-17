@@ -2,12 +2,12 @@ import { User } from '../../common/entities/user.entity';
 import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { MemberType } from '../../auth/const/member-type.enum';
+import { LoginType } from '../../auth/const/login-type.enum';
 
 @Entity()
 @Unique(['email'])
 @Unique(['username'])
 @Unique(['mobileNumber'])
-@Unique(['nickname'])
 export class Member extends User {
   @PrimaryGeneratedColumn('uuid', { comment: '회원번호' })
   @ApiProperty({ description: '회원번호' })
@@ -17,12 +17,16 @@ export class Member extends User {
   @ApiProperty({ description: '회원 이름', type: 'string' })
   type: MemberType;
 
+  @Column({ comment: '로그인 타입', type: 'varchar', default: LoginType.LOCAL })
+  @ApiProperty({ description: '로그인 타입', type: 'enum', enum: LoginType })
+  loginType: LoginType;
+
   @Column({ comment: '회원 닉네임', type: 'varchar' })
   @ApiProperty({ description: '회원 닉네임', type: 'string' })
   nickname: string;
 
-  @Column({ comment: '전화번호', type: 'varchar' })
-  @ApiProperty({ description: '전화번호', type: 'string' })
+  @Column({ comment: '전화번호', type: 'varchar', nullable: true })
+  @ApiPropertyOptional({ description: '전화번호', type: 'string' })
   mobileNumber: string;
 
   @Column({ nullable: true, comment: '이메일', type: 'varchar' })
