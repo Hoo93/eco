@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConsoleLogger, Logger, ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './common/error/allException.filter';
+import { LoggingInterceptor } from './common/api-logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,6 +20,8 @@ async function bootstrap() {
       transformOptions: { enableImplicitConversion: true },
     }),
   );
+
+  app.useGlobalInterceptors(new LoggingInterceptor());
 
   app.useGlobalFilters(new AllExceptionsFilter(app.get(HttpAdapterHost), new ConsoleLogger()));
 

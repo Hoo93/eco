@@ -12,6 +12,9 @@ import { SmsModule } from './sms/sms.module';
 import { VerificationsModule } from './verifications/verifications.module';
 import { Verification } from './verifications/entities/verification.entity';
 import { ProductsModule } from './products/products.module';
+import { CategoriesModule } from './categories/categories.module';
+import { Category } from './categories/entities/category.entity';
+import { CategoryClosure } from './categories/entities/cattegory-closure.entity';
 
 @Module({
   imports: [
@@ -21,7 +24,7 @@ import { ProductsModule } from './products/products.module';
     }),
     TypeOrmModule.forRoot({
       ...getOrmConfig(),
-      entities: [Member, Manager, MemberLoginHistory, Verification],
+      entities: [Member, Manager, MemberLoginHistory, Verification, Category, CategoryClosure],
     }),
     AuthModule,
     MembersModule,
@@ -29,6 +32,7 @@ import { ProductsModule } from './products/products.module';
     SmsModule,
     VerificationsModule,
     ProductsModule,
+    CategoriesModule,
   ],
 })
 export class AppModule {}
