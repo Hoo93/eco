@@ -80,8 +80,8 @@ export class AuthController {
 
     const tokenResponse = await this.authService.oauthSignIn(kakaoUser, ip);
 
-    res.cookie('accessToken', tokenResponse.accessToken);
-    res.cookie('refreshToken', tokenResponse.refreshToken);
+    res.cookie('ecoAccessToken', tokenResponse.accessToken);
+    res.cookie('ecoRefreshToken', tokenResponse.refreshToken);
     res.redirect('/eco');
   }
 
