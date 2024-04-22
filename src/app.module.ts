@@ -15,6 +15,7 @@ import { ProductsModule } from './products/products.module';
 import { CategoriesModule } from './categories/categories.module';
 import { Category } from './categories/entities/category.entity';
 import { CategoryClosure } from './categories/entities/cattegory-closure.entity';
+import { ApiModule } from './API-document/api.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { CategoryClosure } from './categories/entities/cattegory-closure.entity'
     VerificationsModule,
     ProductsModule,
     CategoriesModule,
+    ApiModule,
   ],
 })
 export class AppModule {}
