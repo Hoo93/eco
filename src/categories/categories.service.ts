@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Category } from './entities/category.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { CategoryClosure } from './entities/cattegory-closure.entity';
+import { CategoryClosure } from './entities/category-closure.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 
 @Injectable()

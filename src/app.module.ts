@@ -14,7 +14,7 @@ import { Verification } from './verifications/entities/verification.entity';
 import { ProductsModule } from './products/products.module';
 import { CategoriesModule } from './categories/categories.module';
 import { Category } from './categories/entities/category.entity';
-import { CategoryClosure } from './categories/entities/cattegory-closure.entity';
+import { CategoryClosure } from './categories/entities/category-closure.entity';
 import { ApiModule } from './API-document/api.module';
 
 @Module({
