@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Category } from './entities/category.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Category } from './entities/category.entity';
 import { DataSource, Repository } from 'typeorm';
 import { CategoryClosure } from './entities/category-closure.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -61,6 +61,7 @@ export class CategoriesService {
         c.priority += 1;
         return c;
       });
+
       await manager.save(newCategories);
 
       // 자기 자신이 ancestor이자 descendant인 closure 생성
@@ -74,17 +75,7 @@ export class CategoriesService {
 
       // 부모의 조상 closure들을 자신의 조상으로 복사
       if (createCategoryDto.parentId) {
-        const ancestorClosures = await this.categoryClosureRepository.find({
-          where: { descendant: { id: createCategoryDto.parentId } },
-        });
-
-        const newClosures = ancestorClosures.map((anc) =>
-          this.categoryClosureRepository.create({
-            ancestorId: anc.ancestorId,
-            descendantId: category.id,
-            depth: anc.depth + 1,
-          }),
-        );
+        const newClosures = await this.copyAncestor(createCategoryDto.parentId, category.id);
         await manager.save(newClosures);
       }
 
@@ -97,6 +88,22 @@ export class CategoriesService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  private async copyAncestor(parentId: number, descendantId: number) {
+    const ancestorClosures = await this.categoryClosureRepository.find({
+      where: { descendant: { id: parentId } },
+    });
+
+    const newClosures = ancestorClosures.map((anc) =>
+      this.categoryClosureRepository.create({
+        ancestorId: anc.ancestorId,
+        descendantId: descendantId,
+        depth: anc.depth + 1,
+      }),
+    );
+
+    return newClosures;
   }
 
   // 같은 부모를 가진 그룹 내에서 입력한 우선순위가 그룹 내의 카테고리 수와 같은지 검사
