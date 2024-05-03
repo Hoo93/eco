@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -22,5 +22,16 @@ export class CategoriesController {
   })
   async create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
+  }
+
+  @Get()
+  @ApiOperation({ summary: '최상위 카테고리 조회' })
+  @ApiResponse({
+    status: 200,
+    description: '최상위 카테고리 조회',
+    type: [Category],
+  })
+  async findAll() {
+    return;
   }
 }
