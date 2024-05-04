@@ -90,7 +90,17 @@ export class CategoriesService {
     }
   }
 
-  private async copyAncestor(parentId: number, descendantId: number) {
+  async findAll() {
+    const categories = await this.categoryRepository
+      .createQueryBuilder('category')
+      .leftJoin('category_closure', 'cc', 'category.id = cc.ancestorId AND cc.depth = 1')
+      .addSelect('cc.descendantId', 'descendantId')
+      .getMany();
+
+    return categories;
+  }
+
+  private async copyAncestor(parentId: number, descendantId: number): Promise<CategoryClosure[]> {
     const ancestorClosures = await this.categoryClosureRepository.find({
       where: { descendant: { id: parentId } },
     });

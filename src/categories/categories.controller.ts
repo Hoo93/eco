@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Category } from './entities/category.entity';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @ApiTags('카테고리')
 @Controller('categories')
@@ -24,6 +25,12 @@ export class CategoriesController {
     return this.categoriesService.create(createCategoryDto);
   }
 
+  @Patch()
+  @ApiOperation({ summary: '카테고리 수정' })
+  async update(@Body() updateCategoryDto: UpdateCategoryDto) {
+    return;
+  }
+
   @Get()
   @ApiOperation({ summary: '최상위 카테고리 조회' })
   @ApiResponse({
@@ -32,6 +39,6 @@ export class CategoriesController {
     type: [Category],
   })
   async findAll() {
-    return;
+    return this.categoriesService.findAll();
   }
 }
