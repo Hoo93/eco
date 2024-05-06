@@ -25,4 +25,6 @@ export class Category extends BaseTimeEntity {
     isArray: true,
   })
   accessGrades: MemberGrade[];
+
+  descendants: Category[];
 }
