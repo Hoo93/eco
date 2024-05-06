@@ -1,18 +1,18 @@
 import { Column, CreateDateColumn, DeleteDateColumn, UpdateDateColumn } from 'typeorm';
 
 export abstract class BaseTimeEntity {
-  @Column()
+  @Column({ select: false })
   createId: string;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, select: false })
   updateId: string;
 
-  @UpdateDateColumn({ nullable: true })
+  @UpdateDateColumn({ nullable: true, select: false })
   updatedAt: Date;
 
-  @DeleteDateColumn({ nullable: true })
+  @DeleteDateColumn({ nullable: true, select: false })
   deletedAt: Date;
 }
