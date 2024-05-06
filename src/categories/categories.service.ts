@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { CategoryClosure } from './entities/category-closure.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 
@@ -91,13 +91,81 @@ export class CategoriesService {
   }
 
   async findAll() {
-    const categories = await this.categoryRepository
-      .createQueryBuilder('category')
-      .leftJoin('category_closure', 'cc', 'category.id = cc.ancestorId AND cc.depth = 1')
-      .addSelect('cc.descendantId', 'descendantId')
-      .getMany();
+    const cc = await this.categoryClosureRepository.find({
+      where: { depth: In([0, 1]) },
+      relations: {
+        descendant: true,
+      },
+      order: {
+        descendant: {
+          priority: 'ASC',
+        },
+      },
+    });
 
-    return categories;
+    const depth0 = cc.filter((c) => c.depth === 0);
+    const depth1 = cc.filter((c) => c.depth === 1);
+
+    const hierarchyCategories = depth0.filter((c) => !depth1.includes(c)).map((cc) => cc.descendant);
+
+    for (const category of hierarchyCategories) {
+      category.descendants = buildHierarchy(category, depth1);
+    }
+
+    function buildHierarchy(root: Category, categoryClosures: CategoryClosure[]) {
+      const descendants = categoryClosures.filter((c) => c.ancestorId === root.id).map((c) => c.descendant);
+      descendants.forEach((child) => {
+        child.descendants = buildHierarchy(child, categoryClosures);
+      });
+      return descendants;
+    }
+
+    return hierarchyCategories;
+  }
+
+  async findAll2() {
+    /**
+         const categories = await this.categoryRepository.find({ order: { priority: 'ASC' } });
+
+         const categoryClosures = await this.categoryClosureRepository.find({ where: { depth: 1 } });
+
+         const hierarchyCategories = categories.filter((c) => categoryClosures.filter((cc) => cc.descendantId === c.id).length === 0);
+
+         hierarchyCategories.forEach((c) => {
+         c.descendants = findDescendants(c.id);
+         });
+
+
+         function findDescendants(ancestorId: number) {
+         const descendants = categories.filter((c) =>
+         categoryClosures
+         .filter((cc) => cc.ancestorId === ancestorId && cc.depth === 1)
+         .map((cc) => cc.descendantId)
+         .includes(c.id),
+         );
+
+         if (descendants.length > 0) {
+         descendants.forEach((d) => {
+         d.descendants = findDescendants(d.id);
+         });
+
+
+         return descendants;
+         }
+
+
+         return hierarchyCategories;
+
+         **/
+  }
+
+  private buildHierarchy2(root: Category, categories: Category[]): Category[] {
+    // const children = categories.filter((c) => c.parent === root);
+    // children.forEach((child) => {
+    //   child.descendants = this.buildHierarchy(child, categories);
+    // });
+    // return children;
+    return;
   }
 
   private async copyAncestor(parentId: number, descendantId: number): Promise<CategoryClosure[]> {
