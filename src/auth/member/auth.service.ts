@@ -16,6 +16,7 @@ import { AvailabilityResult } from '../../common/response/is-available-res';
 import { VerificationsService } from '../../verifications/verifications.service';
 import { OAuth } from '../const/oauth.interface';
 import { MemberType } from '../const/member-type.enum';
+import { LoginType } from '../const/login-type.enum';
 
 @Injectable()
 export class AuthService {
@@ -27,11 +28,11 @@ export class AuthService {
   ) {}
 
   public async signup(createMemberDto: CreateMemberDto): Promise<CommonResponseDto<Member>> {
-    const verificationHistory = await this.verficationService.findLatestVerificationByMobileNumber(createMemberDto.mobileNumber);
-
-    if (!verificationHistory.success || !verificationHistory.data.isVerified) {
-      throw new BadRequestException('핸드폰 인증 내역이 없습니다.');
-    }
+    // const verificationHistory = await this.verficationService.findLatestVerificationByMobileNumber(createMemberDto.mobileNumber);
+    //
+    // if (!verificationHistory.success || !verificationHistory.data.isVerified) {
+    //   throw new BadRequestException('핸드폰 인증 내역이 없습니다.');
+    // }
 
     const member = createMemberDto.toEntity();
     await member.hashPassword();
@@ -186,7 +187,7 @@ export class AuthService {
   }
 
   private async validateMember(username: string, password: string) {
-    const member = await this.memberRepository.findOne({ where: { username } });
+    const member = await this.memberRepository.findOne({ where: { username, loginType: LoginType.LOCAL } });
     if (member && (await bcrypt.compare(password, member.password))) {
       return member;
     }
