@@ -9,7 +9,6 @@ import {
   INVALID_EMAIL_MESSAGE,
   INVALID_MOBILENUMBER_MESSAGE,
   INVALID_NICKNAME_MAX_LENGTH_MESSAGE,
-  INVALID_NICKNAME_MESSAGE,
   INVALID_NICKNAME_MIN_LENGTH_MESSAGE,
 } from '../../const/error-message';
 import { MobileNumberTransform } from '../../../common/decorator/phoneNumber.decorator';
@@ -27,13 +26,10 @@ export class CreateMemberDto extends CreateAuthDto {
   @IsString()
   @MinLength(2, { message: INVALID_NICKNAME_MIN_LENGTH_MESSAGE })
   @MaxLength(10, { message: INVALID_NICKNAME_MAX_LENGTH_MESSAGE })
-  @Matches(/^[a-zA-Z0-9-_]+$/, {
-    message: INVALID_NICKNAME_MESSAGE,
-  })
   @ApiProperty({
     description: '회원 닉네임',
     type: 'string',
-    example: '불꽃방귀 어피치',
+    example: '불꽃방귀어피치',
   })
   nickname: string;
 
