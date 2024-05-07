@@ -11,7 +11,7 @@ export class CreateCategoryDto {
   @IsPositive()
   @IsOptional()
   @ApiPropertyOptional({ description: '부모 카테고리 PK', type: 'number' })
-  parentId: number;
+  ancestorId: number;
 
   @IsArray()
   @IsEnum(MemberGrade, { each: true })
@@ -28,6 +28,7 @@ export class CreateCategoryDto {
     const category = new Category();
     category.name = this.name;
     category.accessGrades = this?.accessGrades;
+    category.ancestorId = this?.ancestorId;
     return category;
   }
 }
