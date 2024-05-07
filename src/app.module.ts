@@ -15,6 +15,7 @@ import { ProductsModule } from './products/products.module';
 import { CategoriesModule } from './categories/categories.module';
 import { Category } from './categories/entities/category.entity';
 import { ApiModule } from './API-document/api.module';
+import { CategoryClosure } from './categories/entities/category-closure.entity';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { ApiModule } from './API-document/api.module';
     }),
     TypeOrmModule.forRoot({
       ...getOrmConfig(),
-      entities: [Member, Manager, MemberLoginHistory, Verification, Category],
+      entities: [Member, Manager, MemberLoginHistory, Verification, Category, CategoryClosure],
     }),
     AuthModule,
     MembersModule,
