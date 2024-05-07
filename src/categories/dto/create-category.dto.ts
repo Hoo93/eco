@@ -13,10 +13,6 @@ export class CreateCategoryDto {
   @ApiPropertyOptional({ description: '부모 카테고리 PK', type: 'number' })
   parentId: number;
 
-  @IsPositive()
-  @ApiPropertyOptional({ description: '동일 부모를 가진 그룹 내의 우선순위', type: 'number' })
-  priority: number;
-
   @IsArray()
   @IsEnum(MemberGrade, { each: true })
   @ValidateIf((o) => o.accessGrades?.length > 0)
@@ -31,7 +27,6 @@ export class CreateCategoryDto {
   toEntity() {
     const category = new Category();
     category.name = this.name;
-    category.priority = this.priority;
     category.accessGrades = this?.accessGrades;
     return category;
   }
