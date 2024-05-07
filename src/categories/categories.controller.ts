@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -22,12 +22,13 @@ export class CategoriesController {
     description: '카테고리 생성 DTO',
   })
   async create(@Body() createCategoryDto: CreateCategoryDto) {
+    // return this.categoriesService.create(createCategoryDto);
     return this.categoriesService.create(createCategoryDto);
   }
 
-  @Patch()
+  @Patch('/:id')
   @ApiOperation({ summary: '카테고리 수정' })
-  async update(@Body() updateCategoryDto: UpdateCategoryDto) {
+  async update(@Param('id') id: number, @Body() updateCategoryDto: UpdateCategoryDto) {
     return;
   }
 
