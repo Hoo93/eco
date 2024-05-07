@@ -1,14 +1,14 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Category } from './category.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
 export class CategoryClosure {
-  @Column({ comment: '조상 카테고리 PK', type: 'integer' })
+  @PrimaryColumn({ comment: '조상 카테고리 PK', type: 'integer' })
   @ApiProperty({ description: '조상 카테고리 PK', type: 'number' })
   ancestorId: number;
 
-  @Column({ comment: '자손 카테고리 PK', type: 'integer' })
+  @PrimaryColumn({ comment: '자손 카테고리 PK', type: 'integer' })
   @ApiProperty({ description: '자손 카테고리 PK', type: 'number' })
   descendantId: number;
 
