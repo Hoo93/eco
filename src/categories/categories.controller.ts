@@ -29,7 +29,7 @@ export class CategoriesController {
   @Patch('/:id')
   @ApiOperation({ summary: '카테고리 수정' })
   async update(@Param('id') id: number, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return;
+    return this.categoriesService.update(id, updateCategoryDto);
   }
 
   @Get()
