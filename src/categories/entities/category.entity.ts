@@ -1,13 +1,9 @@
 import { BaseTimeEntity } from '../../common/entities/BaseTimeEntity';
-import { Column, Entity, PrimaryGeneratedColumn, Tree } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { MemberGrade } from '../../members/member-grade.enum';
 
 @Entity()
-@Tree('closure-table', {
-  ancestorColumnName: () => 'ancestorId',
-  descendantColumnName: () => 'descendantId',
-})
 export class Category extends BaseTimeEntity {
   @PrimaryGeneratedColumn('increment')
   @ApiProperty({ description: '카테고리 PK', type: 'number' })
@@ -33,4 +29,6 @@ export class Category extends BaseTimeEntity {
   @Column({ comment: '부모 카테고리 ID', type: 'int', nullable: true })
   @ApiProperty({ description: '부모 카테고리 ID', type: 'number' })
   ancestorId: number;
+
+  descendants: Category[];
 }
