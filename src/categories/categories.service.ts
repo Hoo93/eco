@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
-import { DataSource, In, IsNull, Repository } from 'typeorm';
+import { DataSource, In, IsNull, Not, Repository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryClosure } from './entities/category-closure.entity';
@@ -31,6 +31,7 @@ export class CategoriesService {
 
     category.priority = sameDepthCategories.length + 1;
 
+    // 상위 카테고리가 없는 경우 [] , 있는 경우 조회
     const ancestorClosures = createCategoryDto.ancestorId
       ? await this.categoryClosureRepository.find({
           where: { descendantId: createCategoryDto.ancestorId },
@@ -66,14 +67,14 @@ export class CategoriesService {
       await manager.save(newClosures);
 
       await queryRunner.commitTransaction();
+
+      return createdCategory;
     } catch (e) {
       await queryRunner.rollbackTransaction();
       throw e;
     } finally {
       await queryRunner.release();
     }
-
-    return this.categoryRepository.save(category);
   }
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto) {
@@ -91,21 +92,23 @@ export class CategoriesService {
     // }
 
     // 우선순위 검증
-    let sameDepthCategories: Category[] = await this.getSameDepthCategories(updateCategoryDto.ancestorId);
+    const sameDepthCategories: Category[] = await this.getSameDepthCategories(
+      Object.keys(updateCategoryDto).includes('ancestorId') ? updateCategoryDto.ancestorId : category.ancestorId,
+    );
+    const adjustCategories: Category[] = [];
 
     if (updateCategoryDto.priority) {
-      if (updateCategoryDto.ancestorId) {
+      if (Object.keys(updateCategoryDto).includes('ancestorId')) {
         if (sameDepthCategories.length + 1 < updateCategoryDto.priority) {
           throw new Error('우선순위가 올바르지 않습니다.');
         }
 
-        const adjustCategories = sameDepthCategories.filter((c) => c.priority >= updateCategoryDto.priority);
+        // 옮겨갈 부모 카테고리의 하위 카테고리들의 우선순위를 조정
+        const adjusted = sameDepthCategories.filter((c) => c.priority >= updateCategoryDto.priority);
 
-        for (const c of adjustCategories) {
-          c.priority += 1;
-        }
+        adjusted.forEach((c) => (c.priority += 1));
 
-        await this.categoryRepository.save(adjustCategories);
+        adjustCategories.push(...adjusted);
       } else {
         // 부모 변경 없이 우선 순위만 변경하는 경우
         if (sameDepthCategories.length < updateCategoryDto.priority) {
@@ -114,31 +117,105 @@ export class CategoriesService {
 
         // 변경 전 보다 변경 후의 우선순위 값이 큰 경우
         if (updateCategoryDto.priority > category.priority) {
-          const adjustCategories = sameDepthCategories.filter(
+          const adjusted = sameDepthCategories.filter(
             (c) => c.priority > category.priority && c.priority <= updateCategoryDto.priority,
           );
 
-          adjustCategories.forEach((c) => (c.priority -= 1));
+          adjusted.forEach((c) => (c.priority -= 1));
 
-          await this.categoryRepository.save(adjustCategories);
+          adjustCategories.push(...adjusted);
         } else {
           // 변경 전 보다 변경 후의 우선순위 값이 작은 경우
-          const adjustCategories = sameDepthCategories.filter(
+          const adjusted = sameDepthCategories.filter(
             (c) => c.priority < category.priority && c.priority >= updateCategoryDto.priority,
           );
 
-          adjustCategories.forEach((c) => (c.priority += 1));
+          adjusted.forEach((c) => (c.priority += 1));
 
-          await this.categoryRepository.save(adjustCategories);
+          adjustCategories.push(...adjusted);
         }
       }
+    } else {
+      category.priority = sameDepthCategories.length + 1;
+    }
+
+    // 기존의 부모 카테고리의 하위 카테고리들의 우선순위를 조정
+    if (Object.keys(updateCategoryDto).includes('ancestorId')) {
+      const beforeAncestorCategories = await this.getSameDepthCategories(category.ancestorId);
+
+      const beforeAdjusted = beforeAncestorCategories.filter((c) => c.priority > category.priority && c.id !== category.id);
+      beforeAdjusted.forEach((c) => (c.priority -= 1));
+
+      adjustCategories.push(...beforeAdjusted);
     }
 
     for (const [k, v] of Object.entries(updateCategoryDto)) {
       category[k] = v;
     }
 
-    return this.categoryRepository.save(category);
+    // 기존 Closure 조회 및 삭제
+    // 삭제
+    const newClosures: CategoryClosure[] = [];
+    const categoriesSubClosure = Object.keys(updateCategoryDto).includes('ancestorId')
+      ? await this.categoryClosureRepository.find({
+          where: { ancestorId: category.id },
+        })
+      : [];
+
+    const oldClosures =
+      categoriesSubClosure.length > 0
+        ? await this.categoryClosureRepository.find({
+            where: {
+              descendantId: In(categoriesSubClosure.map((cc) => cc.descendantId)),
+              ancestorId: Not(category.id),
+            },
+          })
+        : [];
+
+    const newAncestorClosures = !!updateCategoryDto.ancestorId
+      ? await this.categoryClosureRepository.find({
+          where: { descendantId: updateCategoryDto.ancestorId },
+        })
+      : [];
+
+    for (const ancestorClosure of newAncestorClosures) {
+      for (const subClosure of categoriesSubClosure) {
+        newClosures.push(
+          this.categoryClosureRepository.create({
+            ancestorId: ancestorClosure.ancestorId,
+            descendantId: subClosure.descendantId,
+            depth: ancestorClosure.depth + subClosure.depth + 1,
+          }),
+        );
+      }
+    }
+
+    // Transaction Start
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    const manager = queryRunner.manager;
+
+    try {
+      const updatedCategory = await manager.save(category);
+
+      await manager.remove(oldClosures);
+
+      await manager.save(adjustCategories);
+
+      await manager.save(newClosures);
+
+      await queryRunner.commitTransaction();
+
+      return updatedCategory;
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   //
@@ -257,7 +334,6 @@ export class CategoriesService {
   // 재귀적으로 하위 카테고리를 찾아서 반환
   // CategoryClosure의 descendant를 조인해줘야 함
   private buildHierarchy(root: Category, categoryClosures: CategoryClosure[]) {
-    console.log(root);
     const descendants = categoryClosures.filter((c) => c.ancestorId === root.id).map((c) => c.descendant);
     descendants.forEach((child) => {
       child.descendants = this.buildHierarchy(child, categoryClosures);
