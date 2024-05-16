@@ -17,6 +17,9 @@ import { Category } from './categories/entities/category.entity';
 import { ApiModule } from './API-document/api.module';
 import { CategoryClosure } from './categories/entities/category-closure.entity';
 import { FileManagerModule } from './file-manager/file-manager.module';
+import { BrandsModule } from './brands/brands.module';
+import { BrandImage } from './brands/entities/brand-image.entity';
+import { Brand } from './brands/entities/brand.entity';
 
 @Module({
   imports: [
@@ -26,7 +29,7 @@ import { FileManagerModule } from './file-manager/file-manager.module';
     }),
     TypeOrmModule.forRoot({
       ...getOrmConfig(),
-      entities: [Member, Manager, MemberLoginHistory, Verification, Category, CategoryClosure],
+      entities: [Member, Manager, MemberLoginHistory, Verification, Category, CategoryClosure, Brand, BrandImage],
     }),
     AuthModule,
     MembersModule,
@@ -37,6 +40,7 @@ import { FileManagerModule } from './file-manager/file-manager.module';
     CategoriesModule,
     ApiModule,
     FileManagerModule,
+    BrandsModule,
   ],
 })
 export class AppModule {}
