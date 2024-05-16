@@ -5,6 +5,7 @@ import { DataSource, In, IsNull, Not, Repository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryClosure } from './entities/category-closure.entity';
+import { Member } from '../members/entities/member.entity';
 
 @Injectable()
 export class CategoriesService {
@@ -16,9 +17,9 @@ export class CategoriesService {
     private dataSource: DataSource,
   ) {}
 
-  async create(createCategoryDto: CreateCategoryDto) {
+  async create(createCategoryDto: CreateCategoryDto, user: Member) {
     const category = createCategoryDto.toEntity();
-    category.createId = 'test';
+    category.createId = user.id;
 
     if (createCategoryDto.ancestorId) {
       const ancestor = await this.categoryRepository.findOneBy({ id: createCategoryDto.ancestorId });
