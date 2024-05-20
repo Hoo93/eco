@@ -15,4 +15,4 @@ COPY . .
 RUN npm run build
 
 # 앱 실행
-CMD ["npm", "run","start:dev"]
+CMD ["npm", "run","start:docker"]
