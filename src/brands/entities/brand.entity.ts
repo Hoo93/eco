@@ -2,6 +2,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { BaseTimeEntity } from '../../common/entities/BaseTimeEntity';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BrandImage } from './brand-image.entity';
+import { Product } from '../../products/entities/product.entity';
 
 @Entity()
 export class Brand extends BaseTimeEntity {
@@ -19,4 +20,7 @@ export class Brand extends BaseTimeEntity {
 
   @OneToMany(() => BrandImage, (brandImage) => brandImage.brand)
   brandImages: BrandImage[];
+
+  @OneToMany(() => BrandImage, (brandImage) => brandImage.brand)
+  products: Product[];
 }
