@@ -82,7 +82,7 @@ export class AuthController {
 
     res.cookie('ecoAccessToken', tokenResponse.accessToken);
     res.cookie('ecoRefreshToken', tokenResponse.refreshToken);
-    res.redirect('/eco');
+    res.redirect(process.env.KAKAO_REDIRECT_URI);
   }
 
   @Get('/check-email')
