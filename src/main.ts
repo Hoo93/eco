@@ -44,7 +44,11 @@ async function bootstrap() {
     )
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/v1/swagger', app, document);
+  SwaggerModule.setup('api/v1/swagger', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true, // Swagger에서 저장된 Bearer Token이 날아가지 않게 해줌(편의성)
+    },
+  });
 
   logger.verbose('====================================');
   logger.verbose(`==== SERVER IS RUNNING ON ${port} =====`);
