@@ -14,6 +14,7 @@ import { MemberLoginHistory } from './member/entity/login-history.entity';
 import { VerificationsService } from '../verifications/verifications.service';
 import { Verification } from '../verifications/entities/verification.entity';
 import { KakaoStrategy } from './strategy/kakao.strategy';
+import { JwtStrategy } from './strategy/jwt.strategy';
 
 @Module({
   imports: [
@@ -24,6 +25,6 @@ import { KakaoStrategy } from './strategy/kakao.strategy';
     JwtModule.register({}),
   ],
   controllers: [AuthController, ManagerAuthController],
-  providers: [AuthService, ManagerAuthService, VerificationsService, KakaoStrategy],
+  providers: [AuthService, ManagerAuthService, VerificationsService, KakaoStrategy, JwtStrategy],
 })
 export class AuthModule {}
