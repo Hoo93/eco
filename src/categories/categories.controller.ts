@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Category } from './entities/category.entity';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -11,6 +11,7 @@ import { Member } from '../members/entities/member.entity';
 @ApiTags('카테고리')
 @Controller('categories')
 @UseGuards(AuthGuard('jwt'))
+@ApiBearerAuth('token')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
@@ -45,4 +46,12 @@ export class CategoriesController {
   async findAll() {
     return this.categoriesService.findAll();
   }
+
+  @Delete('/:id')
+  @ApiOperation({ summary: '선택한 카테고리 삭제( 하위 카테고리 포함 )' })
+  @ApiResponse({
+    status: 200,
+    description: '선택한 카테고리 삭제( 하위 카테고리 포함 )',
+  })
+  async delete(@Param('id') id: number) {}
 }
