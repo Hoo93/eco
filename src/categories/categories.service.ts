@@ -6,6 +6,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryClosure } from './entities/category-closure.entity';
 import { Member } from '../members/entities/member.entity';
+import { CommonResponseDto } from '../common/response/common-response.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -243,6 +244,43 @@ export class CategoriesService {
     }
 
     return hierarchyCategories;
+  }
+
+  async delete(id: number) {
+    const categoryClosures = await this.categoryClosureRepository.find({
+      where: { ancestorId: id },
+      relations: {
+        descendant: true,
+      },
+    });
+
+    const categories = categoryClosures.map((c) => c.descendant);
+
+    if (!categoryClosures) {
+      throw new Error('존재하지 않는 카테고리입니다.');
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    const manager = queryRunner.manager;
+
+    try {
+      await manager.remove(categoryClosures);
+
+      await manager.remove(categories);
+
+      await queryRunner.commitTransaction();
+
+      return new CommonResponseDto('SUCCESS DELETE CATEGORY');
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   private async getSameDepthCategories(ancestorId: number | null) {

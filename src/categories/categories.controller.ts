@@ -53,5 +53,7 @@ export class CategoriesController {
     status: 200,
     description: '선택한 카테고리 삭제( 하위 카테고리 포함 )',
   })
-  async delete(@Param('id') id: number) {}
+  async delete(@Param('id') id: number) {
+    return this.categoriesService.delete(id);
+  }
 }
