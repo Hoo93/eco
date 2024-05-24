@@ -5,12 +5,10 @@ import { AuthGuard } from '@nestjs/passport';
 import { Brand } from './entities/brand.entity';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { GetUser } from '../common/decorator/user.decorator';
-import { Member } from '../members/entities/member.entity';
+import { JwtPayload } from '../auth/const/jwtPayload.interface';
 
 @ApiTags('카테고리')
 @Controller('brands')
-@UseGuards(AuthGuard('jwt'))
-@ApiBearerAuth('token')
 export class BrandsController {
   constructor(private readonly brandsService: BrandsService) {}
 
@@ -25,7 +23,9 @@ export class BrandsController {
     type: CreateBrandDto,
     description: '브랜드 생성 DTO',
   })
-  async create(@Body() createBrandDto: CreateBrandDto, @GetUser() user: Member) {
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth('token')
+  async create(@Body() createBrandDto: CreateBrandDto, @GetUser() user: JwtPayload) {
     return this.brandsService.createBrand(createBrandDto, user);
   }
 }
