@@ -21,15 +21,23 @@ export class BrandsService {
     const createdBrand = await this.brandRepository.save(brand);
 
     if (createBrandDto.imageUrls) {
+      let priority = 1;
       const brandImages = createBrandDto.imageUrls.map((url) => {
         const brandImage = new BrandImage();
         brandImage.createId = user.id;
         brandImage.brandId = createdBrand.id;
         brandImage.imageUrl = url;
+        brandImage.priority = priority++;
         return brandImage;
       });
 
       await this.brandImageRepository.save(brandImages);
     }
+
+    return createdBrand;
+  }
+
+  async findAll() {
+    return this.brandRepository.find();
   }
 }

@@ -1,15 +1,16 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { BrandsService } from './brands.service';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Brand } from './entities/brand.entity';
 import { CreateBrandDto } from './dto/create-brand.dto';
-import { Member } from 'aws-sdk/clients/chime';
 import { GetUser } from '../common/decorator/user.decorator';
+import { Member } from '../members/entities/member.entity';
 
 @ApiTags('카테고리')
 @Controller('brands')
 @UseGuards(AuthGuard('jwt'))
+@ApiBearerAuth('token')
 export class BrandsController {
   constructor(private readonly brandsService: BrandsService) {}
 
@@ -25,6 +26,6 @@ export class BrandsController {
     description: '브랜드 생성 DTO',
   })
   async create(@Body() createBrandDto: CreateBrandDto, @GetUser() user: Member) {
-    return;
+    return this.brandsService.createBrand(createBrandDto, user);
   }
 }
