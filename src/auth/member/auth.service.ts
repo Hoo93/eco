@@ -50,6 +50,7 @@ export class AuthService {
       id: member.id,
       username: member.username,
       userType: UserType.MEMBER,
+      loginType: LoginType.LOCAL,
     };
 
     const accessToken = this.generateAccessToken(payload);
