@@ -61,7 +61,7 @@ export class ManagerAuthService {
 
     const jwtPayload: JwtPayload = {
       id: manager.id,
-      userType: 'MANAGER',
+      userType: UserType.MANAGER,
       username: manager.username,
     };
 
