@@ -46,6 +46,8 @@ export class CreateBrandDto {
     brand.name = this.name;
     brand.description = this?.description;
     brand.logoImageUrl = this?.logoImageUrl;
+    brand.establishedYear = this?.establishedYear;
+    brand.country = this?.country;
     return brand;
   }
 }
