@@ -9,6 +9,7 @@ import { JwtPayload } from '../auth/const/jwtPayload.interface';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 import { CommonResponseDto } from '../common/response/common-response.dto';
 import { IdResponseDto } from '../common/response/id-response.dto';
+import { UpdateBrandImageDto } from './dto/update-brand-image.dto';
 
 @ApiTags('브랜드')
 @Controller('brands')
@@ -32,11 +33,32 @@ export class BrandsController {
     return this.brandsService.createBrand(createBrandDto, user);
   }
 
-  @Patch('/:id')
-  @ApiOperation({ summary: '브랜드 기본 정보 수정 (이미지 제외한 정보 수정)' })
+  @Patch('/:id/image')
+  @ApiOperation({ summary: '브랜드 이미지 정보 수정 (기존 이미지 삭제됨)' })
   @ApiResponse({
     status: 200,
-    description: '브랜드 기본 정보 수정 (이미지 제외한 정보 수',
+    description: '브랜드 이미지 정보 수정 (기존 이미지 삭제됨)',
+    type: Brand,
+  })
+  @ApiBody({
+    type: UpdateBrandImageDto,
+    description: '브랜드 이미지 수정 DTO',
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth('token')
+  async updateImage(
+    @Param('id') id: number,
+    @Body() updateBrandImageDto: UpdateBrandImageDto,
+    @GetUser() user: JwtPayload,
+  ): Promise<CommonResponseDto<IdResponseDto>> {
+    return this.brandsService.updateBrandImage(id, updateBrandImageDto, user);
+  }
+
+  @Patch('/:id')
+  @ApiOperation({ summary: '브랜드 기본 정보,로고 이미지 수정 (이미지 제외한 정보 수정)' })
+  @ApiResponse({
+    status: 200,
+    description: '브랜드 기본 정보,로고 이미지 수정 (이미지 제외한 정보 수정)',
     type: Brand,
   })
   @ApiBody({
