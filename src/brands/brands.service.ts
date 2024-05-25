@@ -25,7 +25,7 @@ export class BrandsService {
     brand.createId = user.id;
     const createdBrand = await this.brandRepository.save(brand);
 
-    if (createBrandDto.imageUrls) {
+    if (createBrandDto.imageUrls.length > 0) {
       let priority = 1;
       const brandImages = createBrandDto.imageUrls.map((url) => {
         const brandImage = new BrandImage();

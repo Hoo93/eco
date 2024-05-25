@@ -7,7 +7,7 @@ import { CreateBrandDto } from './dto/create-brand.dto';
 import { GetUser } from '../common/decorator/user.decorator';
 import { JwtPayload } from '../auth/const/jwtPayload.interface';
 
-@ApiTags('카테고리')
+@ApiTags('브랜드')
 @Controller('brands')
 export class BrandsController {
   constructor(private readonly brandsService: BrandsService) {}
