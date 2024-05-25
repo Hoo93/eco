@@ -13,27 +13,27 @@ export class Product extends BaseTimeEntity {
 
   @ApiProperty({ description: '상품 이름', type: 'string' })
   @Column({ comment: '상품 이름', type: 'varchar' })
-  name: string;
+  title: string;
 
   @ApiProperty({ description: '상품 설명 (HTML)', type: 'string' })
   @Column({ comment: '상품 설명 (HTML)', type: 'text' })
   description: string;
+
+  @ApiProperty({ description: '상품 요약 설명 (50글자 이하)', type: 'string' })
+  @Column({ comment: '상품 요약 설명 (50글자 이하)', type: 'text' })
+  summary: string;
 
   @ApiProperty({ description: '상품 가격', type: 'number' })
   @Column({ comment: '상품 가격', type: 'int' })
   price: number;
 
   @ApiProperty({ description: '상품 재고', type: 'number' })
-  @Column({ comment: '상품 재고', type: 'int' })
+  @Column({ comment: '상품 재고', type: 'int', default: 0 })
   stock: number;
 
   @ApiProperty({ description: '상품 대표 이미지 URL', type: 'string' })
-  @Column({ comment: '상품 대표 이미지 URL', type: 'varchar' })
-  imageUrl: string;
-
-  @ApiProperty({ description: '상품 카테고리 ID', type: 'number' })
-  @Column({ comment: '상품 카테고리 ID', type: 'int' })
-  categoryId: number;
+  @Column({ comment: '상품 대표 이미지 URL', type: 'text' })
+  mainImageUrl: string;
 
   @ApiProperty({ description: '상품 브랜드 ID', type: 'number' })
   @Column({ comment: '상품 브랜드 ID', type: 'int' })
