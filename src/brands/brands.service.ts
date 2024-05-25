@@ -86,6 +86,19 @@ export class BrandsService {
     return new PageResponseDto(brandSearchFilterDto.getLimit(), total, brands);
   }
 
+  async detail(id: number) {
+    const brand = await this.brandRepository.findOne({
+      relations: {
+        brandImages: true,
+      },
+      where: { id },
+    });
+
+    console.log(brand);
+    brand?.brandImages.sort((a, b) => a.priority - b.priority);
+    return brand;
+  }
+
   async updateBrandImage(
     id: number,
     updateBrandImageDto: UpdateBrandImageDto,

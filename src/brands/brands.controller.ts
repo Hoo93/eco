@@ -87,4 +87,15 @@ export class BrandsController {
   async findAll(@Query() brandSearchFilterDto: BrandSearchFilterDto): Promise<PageResponseDto<Brand>> {
     return this.brandsService.findAll(brandSearchFilterDto);
   }
+
+  @Get(':id')
+  @ApiOperation({ summary: '브랜드 상세 조회' })
+  @ApiResponse({
+    status: 200,
+    description: '브랜드 상세 조회',
+    type: Brand,
+  })
+  async detail(@Param('id') id: number): Promise<Brand> {
+    return this.brandsService.detail(id);
+  }
 }

@@ -21,6 +21,6 @@ export class BrandImage extends BaseTimeEntity {
   @Column({ comment: '이미지 노출 순서', type: 'int' })
   priority: number;
 
-  @ManyToOne(() => Brand, (brand) => brand.id)
+  @ManyToOne(() => Brand, (brand) => brand.brandImages)
   brand: Brand;
 }
