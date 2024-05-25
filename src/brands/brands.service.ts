@@ -10,6 +10,8 @@ import { UpdateBrandDto } from './dto/update-brand.dto';
 import { CommonResponseDto } from '../common/response/common-response.dto';
 import { IdResponseDto } from '../common/response/id-response.dto';
 import { UpdateBrandImageDto } from './dto/update-brand-image.dto';
+import { BrandSearchFilterDto } from './dto/brand-search-filter.dto';
+import { PageResponseDto } from '../common/response/pageResponse.dto';
 
 @Injectable()
 export class BrandsService {
@@ -57,8 +59,31 @@ export class BrandsService {
     return new CommonResponseDto('SUCCESS UPDATE BRAND', new IdResponseDto(id));
   }
 
-  async findAll() {
-    return this.brandRepository.find();
+  async findAll(brandSearchFilterDto: BrandSearchFilterDto): Promise<PageResponseDto<Brand>> {
+    const queryBuilder = await this.brandRepository.createQueryBuilder('brand');
+
+    if (brandSearchFilterDto.establishedYearFrom) {
+      queryBuilder.andWhere('brand.establishedYear >= :establishedYearFrom', {
+        establishedYearFrom: brandSearchFilterDto.establishedYearFrom,
+      });
+    }
+    if (brandSearchFilterDto.establishedYearTo) {
+      queryBuilder.andWhere('brand.establishedYear <= :establishedYearTo', {
+        establishedYearTo: brandSearchFilterDto.establishedYearTo,
+      });
+    }
+    if (brandSearchFilterDto.name) {
+      queryBuilder.andWhere('brand.name like :name', { name: `%${brandSearchFilterDto.name}%` });
+    }
+    if (brandSearchFilterDto.country) {
+      queryBuilder.andWhere('brand.country like :country', { country: `%${brandSearchFilterDto.country}%` });
+    }
+
+    queryBuilder.limit(brandSearchFilterDto.getOffset()).take(brandSearchFilterDto.getLimit()).orderBy('brand.id', 'DESC');
+
+    const [brands, total] = await queryBuilder.getManyAndCount();
+
+    return new PageResponseDto(brandSearchFilterDto.getLimit(), total, brands);
   }
 
   async updateBrandImage(

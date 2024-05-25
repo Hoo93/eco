@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { BrandsService } from './brands.service';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
@@ -10,6 +10,8 @@ import { UpdateBrandDto } from './dto/update-brand.dto';
 import { CommonResponseDto } from '../common/response/common-response.dto';
 import { IdResponseDto } from '../common/response/id-response.dto';
 import { UpdateBrandImageDto } from './dto/update-brand-image.dto';
+import { BrandSearchFilterDto } from './dto/brand-search-filter.dto';
+import { PageResponseDto } from '../common/response/pageResponse.dto';
 
 @ApiTags('브랜드')
 @Controller('brands')
@@ -73,5 +75,16 @@ export class BrandsController {
     @GetUser() user: JwtPayload,
   ): Promise<CommonResponseDto<IdResponseDto>> {
     return this.brandsService.updateBrand(id, updateBrandDto, user);
+  }
+
+  @Get()
+  @ApiOperation({ summary: '브랜드 전체 조회 (상세 이미지 제외)' })
+  @ApiResponse({
+    status: 200,
+    description: '브랜드 전체 조회 (상세 이미지 제외)',
+    type: [Brand],
+  })
+  async findAll(@Query() brandSearchFilterDto: BrandSearchFilterDto): Promise<PageResponseDto<Brand>> {
+    return this.brandsService.findAll(brandSearchFilterDto);
   }
 }
