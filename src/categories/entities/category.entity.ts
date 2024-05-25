@@ -1,7 +1,8 @@
 import { BaseTimeEntity } from '../../common/entities/BaseTimeEntity';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { MemberGrade } from '../../members/member-grade.enum';
+import { ProductCategory } from '../../products/entities/product-category.entity';
 
 @Entity()
 export class Category extends BaseTimeEntity {
@@ -29,6 +30,9 @@ export class Category extends BaseTimeEntity {
   @Column({ comment: '부모 카테고리 ID', type: 'int', nullable: true })
   @ApiProperty({ description: '부모 카테고리 ID', type: 'number' })
   ancestorId: number;
+
+  @OneToMany(() => ProductCategory, (productCategory) => productCategory.product)
+  productCategories: ProductCategory[];
 
   descendants: Category[];
 }
