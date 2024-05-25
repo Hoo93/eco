@@ -6,6 +6,9 @@ import { BrandImage } from './entities/brand-image.entity';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { JwtPayload } from '../auth/const/jwtPayload.interface';
 import { UserType } from '../auth/const/user-type.enum';
+import { UpdateBrandDto } from './dto/update-brand.dto';
+import { CommonResponseDto } from '../common/response/common-response.dto';
+import { IdResponseDto } from '../common/response/id-response.dto';
 
 @Injectable()
 export class BrandsService {
@@ -40,6 +43,17 @@ export class BrandsService {
     }
 
     return createdBrand;
+  }
+
+  async updateBrand(id: number, updateBrandDto: UpdateBrandDto, user: JwtPayload): Promise<CommonResponseDto<IdResponseDto>> {
+    if (user.userType !== UserType.MANAGER) {
+      throw new ForbiddenException('관리자만 브랜드를 수정할 수 있습니다.');
+    }
+
+    updateBrandDto.updateId = user.id;
+
+    await this.brandRepository.update(id, updateBrandDto);
+    return new CommonResponseDto('SUCCESS UPDATE BRAND', new IdResponseDto(id));
   }
 
   async findAll() {
